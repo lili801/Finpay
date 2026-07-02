@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { TransactionStatus, TransactionType } from '../constants/financial.constants.js';
+import { TransactionSource, TransactionStatus, TransactionType } from '../constants/financial.constants.js';
 import { minorUnitField } from './financial-fields.js';
 
 const transactionSchema = new mongoose.Schema(
@@ -37,6 +37,13 @@ const transactionSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: Object.values(TransactionType),
+      required: true,
+      immutable: true,
+    },
+    source: {
+      type: String,
+      enum: Object.values(TransactionSource),
+      default: TransactionSource.SELF,
       required: true,
       immutable: true,
     },

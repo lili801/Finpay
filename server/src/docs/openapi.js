@@ -217,6 +217,55 @@ export const openApiSpecification = {
         responses: { 200: { description: 'Password reset' }, 400: errorResponse },
       },
     },
+    '/wallet/add-money': {
+      post: {
+        tags: ['Wallets'],
+        summary: 'Add money to the authenticated wallet',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['amount'],
+                properties: { amount: { type: ['string', 'integer'] } },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: 'Money added' }, 401: errorResponse, 422: errorResponse },
+      },
+    },
+    '/wallet/transfer': {
+      post: {
+        tags: ['Wallets'],
+        summary: 'Transfer money between wallets',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['receiverId', 'amount', 'idempotencyKey'],
+                properties: {
+                  receiverId: { type: 'string' },
+                  amount: { type: ['string', 'integer'] },
+                  idempotencyKey: { type: 'string', minLength: 8, maxLength: 128 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: 'Transfer completed' },
+          401: errorResponse,
+          409: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
     '/wallet': {
       get: {
         tags: ['Wallets'],

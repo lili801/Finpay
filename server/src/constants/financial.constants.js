@@ -7,6 +7,7 @@ export const WalletStatus = Object.freeze({
 export const TransactionStatus = Object.freeze({
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
+  SUCCESS: 'SUCCESS',
   SUCCEEDED: 'SUCCEEDED',
   FAILED: 'FAILED',
   REVERSED: 'REVERSED',
@@ -14,9 +15,14 @@ export const TransactionStatus = Object.freeze({
 
 export const TransactionType = Object.freeze({
   ADD_MONEY: 'ADD_MONEY',
+  TOP_UP: 'TOP_UP',
   TRANSFER: 'TRANSFER',
   REFUND: 'REFUND',
   REVERSAL: 'REVERSAL',
+});
+
+export const TransactionSource = Object.freeze({
+  SELF: 'SELF',
 });
 
 export const Currency = Object.freeze({

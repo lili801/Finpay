@@ -59,6 +59,7 @@ export const financialSchemas = {
       },
       status: { type: 'string', enum: Object.values(TransactionStatus) },
       type: { type: 'string', enum: Object.values(TransactionType) },
+      source: { type: 'string', enum: ['SELF'] },
       idempotencyKey: { type: 'string', minLength: 8, maxLength: 128 },
       ...timestamps,
     },

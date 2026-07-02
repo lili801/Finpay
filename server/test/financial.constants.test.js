@@ -13,8 +13,8 @@ import {
 
 const expectedConstants = [
   [WalletStatus, ['ACTIVE', 'FROZEN', 'CLOSED']],
-  [TransactionStatus, ['PENDING', 'PROCESSING', 'SUCCEEDED', 'FAILED', 'REVERSED']],
-  [TransactionType, ['ADD_MONEY', 'TRANSFER', 'REFUND', 'REVERSAL']],
+  [TransactionStatus, ['PENDING', 'PROCESSING', 'SUCCESS', 'SUCCEEDED', 'FAILED', 'REVERSED']],
+  [TransactionType, ['ADD_MONEY', 'TOP_UP', 'TRANSFER', 'REFUND', 'REVERSAL']],
   [Currency, ['INR']],
   [NotificationStatus, ['PENDING', 'SENT', 'READ', 'FAILED']],
   [LedgerEntryType, ['FUNDING', 'TRANSFER', 'REFUND', 'REVERSAL']],
