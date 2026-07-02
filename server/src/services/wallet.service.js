@@ -11,11 +11,13 @@ export class WalletService {
   constructor({
     walletRepository,
     userRepository,
+    transactionRepository,
     transactionModel = Transaction,
     ledgerModel = Ledger,
   }) {
     this.walletRepository = walletRepository;
     this.userRepository = userRepository;
+    this.transactionRepository = transactionRepository;
     this.transactionModel = transactionModel;
     this.ledgerModel = ledgerModel;
   }
@@ -170,6 +172,41 @@ export class WalletService {
     return transferResult;
   }
 
+  async getTransactionHistory(userId, { page, limit }) {
+    const wallet = await this.walletRepository.findByUserId(userId);
+
+    if (!wallet) {
+      throw new AppError('Wallet not found', {
+        statusCode: 404,
+        code: 'WALLET_NOT_FOUND',
+      });
+    }
+
+    const { transactions, total } = await this.transactionRepository.findByWalletId({
+      walletId: wallet.id,
+      page,
+      limit,
+    });
+
+    logger.info('Wallet transaction history retrieved', {
+      event: 'wallet.transactions.listed',
+      userId,
+      walletId: wallet.id,
+      page,
+      limit,
+    });
+
+    return {
+      transactions: transactions.map((transaction) => this.#publicTransaction(transaction)),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   async #persistTopUp(wallet, amountInPaise, transactionId, idempotencyKey, session) {
     const walletToUpdate = wallet;
     walletToUpdate.balance += amountInPaise;
@@ -320,5 +357,19 @@ export class WalletService {
     const document = new model(record);
     await document.save({ session });
     return document;
+  }
+
+  #publicTransaction(transaction) {
+    return {
+      transactionId: transaction.transactionId,
+      type: transaction.type,
+      status: transaction.status,
+      amount: transaction.amount,
+      amountInRupees: paiseToRupees(transaction.amount),
+      senderWalletId: transaction.senderWalletId.toString(),
+      receiverWalletId: transaction.receiverWalletId.toString(),
+      source: transaction.source,
+      createdAt: transaction.createdAt,
+    };
   }
 }

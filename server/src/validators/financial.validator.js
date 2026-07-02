@@ -92,3 +92,18 @@ export const transferSchema = z.object({
     })
     .strict(),
 });
+
+const paginationQueryNumber = ({ defaultValue, maxValue }) =>
+  z.preprocess(
+    (value) => (value === undefined ? defaultValue : value),
+    z.coerce.number().int().min(1).max(maxValue),
+  );
+
+export const transactionHistorySchema = z.object({
+  query: z
+    .object({
+      page: paginationQueryNumber({ defaultValue: 1, maxValue: 10_000 }),
+      limit: paginationQueryNumber({ defaultValue: 20, maxValue: 100 }),
+    })
+    .strict(),
+});

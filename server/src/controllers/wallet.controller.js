@@ -30,6 +30,21 @@ export class WalletController {
     );
   };
 
+  getTransactions = async (request, response) => {
+    const { transactions, pagination } = await this.walletService.getTransactionHistory(
+      request.auth.userId,
+      request.validated.query,
+    );
+
+    response.status(200).json(
+      successResponse({
+        message: 'Wallet transactions retrieved successfully',
+        data: { transactions },
+        meta: { pagination },
+      }),
+    );
+  };
+
   getWallet = async (request, response) => {
     const wallet = await this.walletService.getWallet(request.auth.userId);
     response.status(200).json(

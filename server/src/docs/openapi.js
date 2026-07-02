@@ -266,6 +266,31 @@ export const openApiSpecification = {
         },
       },
     },
+    '/wallet/transactions': {
+      get: {
+        tags: ['Wallets'],
+        summary: 'List authenticated wallet transactions',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          },
+        ],
+        responses: {
+          200: { description: 'Wallet transactions retrieved' },
+          401: errorResponse,
+          404: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
     '/wallet': {
       get: {
         tags: ['Wallets'],
