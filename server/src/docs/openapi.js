@@ -240,7 +240,7 @@ export const openApiSpecification = {
     '/wallet/transfer': {
       post: {
         tags: ['Wallets'],
-        summary: 'Transfer money between wallets',
+        summary: 'Transfer money to another user wallet',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -248,11 +248,10 @@ export const openApiSpecification = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['receiverId', 'amount', 'idempotencyKey'],
+                required: ['receiverUserId', 'amount'],
                 properties: {
-                  receiverId: { type: 'string' },
+                  receiverUserId: { type: 'string' },
                   amount: { type: ['string', 'integer'] },
-                  idempotencyKey: { type: 'string', minLength: 8, maxLength: 128 },
                 },
               },
             },
@@ -260,8 +259,9 @@ export const openApiSpecification = {
         },
         responses: {
           200: { description: 'Transfer completed' },
+          400: errorResponse,
           401: errorResponse,
-          409: errorResponse,
+          404: errorResponse,
           422: errorResponse,
         },
       },

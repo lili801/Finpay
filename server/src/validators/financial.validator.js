@@ -69,10 +69,10 @@ export const transferAmountSchema = z
   .superRefine((value, context) => {
     try {
       const paise = rupeesToPaise(value);
-      if (paise < 100 || paise > 10_000_000) {
+      if (!validateAmount(paise)) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Amount must be between ₹1 and ₹100,000',
+          message: `Amount must be between 1 and ${MONEY_LIMITS.MAX_MINOR_UNITS} paise`,
         });
       }
     } catch {
@@ -87,9 +87,8 @@ export const transferAmountSchema = z
 export const transferSchema = z.object({
   body: z
     .object({
-      receiverId: mongoIdSchema,
+      receiverUserId: mongoIdSchema,
       amount: transferAmountSchema,
-      idempotencyKey: idempotencyKeySchema,
     })
     .strict(),
 });

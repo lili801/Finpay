@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+import { logger } from '../config/logger.js';
 import { TransactionSource, TransactionStatus, TransactionType } from '../constants/financial.constants.js';
 import { Transaction } from '../models/transaction.model.js';
 import { Ledger } from '../models/ledger.model.js';
@@ -7,8 +8,14 @@ import { AppError } from '../utils/app-error.js';
 import { paiseToRupees } from '../utils/money.js';
 
 export class WalletService {
-  constructor({ walletRepository, transactionModel = Transaction, ledgerModel = Ledger }) {
+  constructor({
+    walletRepository,
+    userRepository,
+    transactionModel = Transaction,
+    ledgerModel = Ledger,
+  }) {
     this.walletRepository = walletRepository;
+    this.userRepository = userRepository;
     this.transactionModel = transactionModel;
     this.ledgerModel = ledgerModel;
   }
@@ -114,6 +121,55 @@ export class WalletService {
     };
   }
 
+  async transfer({ senderUserId, receiverUserId, amountInPaise }) {
+    if (String(senderUserId) === String(receiverUserId)) {
+      throw new AppError('Sender cannot transfer to self', {
+        statusCode: 400,
+        code: 'SELF_TRANSFER_NOT_ALLOWED',
+      });
+    }
+
+    const transactionId = this.#createTransactionId();
+    const idempotencyKey = `transfer-${senderUserId}-${receiverUserId}-${Date.now()}`;
+    let transferResult;
+
+    if (await this.#canUseTransactions()) {
+      const session = await mongoose.startSession();
+
+      try {
+        await session.withTransaction(async () => {
+          transferResult = await this.#persistTransfer({
+            senderUserId,
+            receiverUserId,
+            amountInPaise,
+            transactionId,
+            idempotencyKey,
+            session,
+          });
+        });
+      } finally {
+        await session.endSession();
+      }
+    } else {
+      transferResult = await this.#persistTransfer({
+        senderUserId,
+        receiverUserId,
+        amountInPaise,
+        transactionId,
+        idempotencyKey,
+      });
+    }
+
+    logger.info('Wallet transfer completed', {
+      event: 'wallet.transfer.succeeded',
+      senderUserId,
+      receiverUserId,
+      transactionId,
+    });
+
+    return transferResult;
+  }
+
   async #persistTopUp(wallet, amountInPaise, transactionId, idempotencyKey, session) {
     const walletToUpdate = wallet;
     walletToUpdate.balance += amountInPaise;
@@ -145,6 +201,93 @@ export class WalletService {
     );
 
     return walletToUpdate;
+  }
+
+  async #persistTransfer({
+    senderUserId,
+    receiverUserId,
+    amountInPaise,
+    transactionId,
+    idempotencyKey,
+    session,
+  }) {
+    const receiver = await this.userRepository.findById(receiverUserId, session);
+
+    if (!receiver) {
+      throw new AppError('Receiver user not found', {
+        statusCode: 404,
+        code: 'RECEIVER_NOT_FOUND',
+      });
+    }
+
+    const senderWallet = await this.walletRepository.findByUserId(senderUserId, session);
+    if (!senderWallet) {
+      throw new AppError('Sender wallet not found', {
+        statusCode: 404,
+        code: 'SENDER_WALLET_NOT_FOUND',
+      });
+    }
+
+    const receiverWallet = await this.walletRepository.findByUserId(receiverUserId, session);
+    if (!receiverWallet) {
+      throw new AppError('Receiver wallet not found', {
+        statusCode: 404,
+        code: 'RECEIVER_WALLET_NOT_FOUND',
+      });
+    }
+
+    if (senderWallet.balance < amountInPaise) {
+      throw new AppError('Insufficient wallet balance', {
+        statusCode: 400,
+        code: 'INSUFFICIENT_BALANCE',
+      });
+    }
+
+    senderWallet.balance -= amountInPaise;
+    receiverWallet.balance += amountInPaise;
+
+    await this.walletRepository.save(senderWallet, session);
+    await this.walletRepository.save(receiverWallet, session);
+
+    await this.#createTransactionRecord(
+      {
+        transactionId,
+        senderWalletId: senderWallet.id,
+        receiverWalletId: receiverWallet.id,
+        amount: amountInPaise,
+        status: TransactionStatus.SUCCESS,
+        type: TransactionType.TRANSFER,
+        source: TransactionSource.SELF,
+        idempotencyKey,
+      },
+      session,
+    );
+
+    await this.#createLedgerEntry(
+      {
+        transactionId,
+        debitWalletId: senderWallet.id,
+        creditWalletId: receiverWallet.id,
+        amount: amountInPaise,
+        entryType: 'TRANSFER',
+      },
+      session,
+    );
+
+    return {
+      transactionId,
+      amountTransferred: amountInPaise,
+      currency: senderWallet.currency,
+      sender: {
+        walletId: senderWallet.id,
+        balance: senderWallet.balance,
+        balanceInRupees: paiseToRupees(senderWallet.balance),
+      },
+      receiver: {
+        walletId: receiverWallet.id,
+        userId: receiverUserId,
+      },
+    };
   }
 
   async #canUseTransactions() {

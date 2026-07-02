@@ -15,6 +15,21 @@ export class WalletController {
     );
   };
 
+  transfer = async (request, response) => {
+    const result = await this.walletService.transfer({
+      senderUserId: request.auth.userId,
+      receiverUserId: request.validated.body.receiverUserId,
+      amountInPaise: request.validated.body.amount,
+    });
+
+    response.status(200).json(
+      successResponse({
+        message: 'Transfer completed successfully',
+        data: result,
+      }),
+    );
+  };
+
   getWallet = async (request, response) => {
     const wallet = await this.walletService.getWallet(request.auth.userId);
     response.status(200).json(
@@ -31,21 +46,6 @@ export class WalletController {
       successResponse({
         message: 'Wallet balance retrieved successfully',
         data: { balance },
-      }),
-    );
-  };
-
-  transfer = async (request, response) => {
-    const result = await this.walletService.transfer(
-      request.auth.userId,
-      request.validated.body.receiverId,
-      request.validated.body.amount,
-      request.validated.body.idempotencyKey,
-    );
-    response.status(200).json(
-      successResponse({
-        message: 'Transfer completed successfully',
-        data: result,
       }),
     );
   };

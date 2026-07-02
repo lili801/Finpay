@@ -8,8 +8,9 @@ export class UserRepository {
     return User.create(userData);
   }
 
-  async findById(id) {
-    return User.findById(id);
+  async findById(id, session) {
+    const query = User.findById(id);
+    return session ? query.session(session) : query;
   }
 
   async findByIdWithSecrets(id) {
