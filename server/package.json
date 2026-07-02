@@ -1,0 +1,33 @@
+{
+  "name": "@finpay/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --import ./test/setup.js --test test/auth.service.test.js test/financial.constants.test.js test/financial.models.test.js test/health.test.js test/money.test.js test/wallet.service.test.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.0",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

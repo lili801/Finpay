@@ -1,0 +1,12 @@
+{
+  "name": "@finpay/client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FinPay web application workspace; implementation begins in a later increment.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
