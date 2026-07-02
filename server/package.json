@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "test": "node --import ./test/setup.js --test test/auth.service.test.js test/financial.constants.test.js test/financial.models.test.js test/health.test.js test/money.test.js test/wallet.service.test.js test/wallet.topup.test.js test/wallet.transfer.test.js test/wallet.transactions.test.js"
+    "test": "node --import ./test/setup.js --test test/auth.service.test.js test/financial.constants.test.js test/financial.models.test.js test/health.test.js test/money.test.js test/wallet.service.test.js test/wallet.topup.test.js test/wallet.transfer.test.js test/wallet.transactions.test.js test/notifications.test.js"
   },
   "engines": {
     "node": ">=22.0.0"

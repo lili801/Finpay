@@ -19,7 +19,7 @@ export const openApiSpecification = {
       'Authentication API and financial domain contracts for the FinPay payment platform.',
   },
   servers: [{ url: `http://localhost:${env.PORT}/api/v1`, description: 'Local API' }],
-  tags: [{ name: 'Authentication' }, { name: 'Wallets' }],
+  tags: [{ name: 'Authentication' }, { name: 'Wallets' }, { name: 'Notifications' }],
   components: {
     securitySchemes: {
       bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -58,6 +58,22 @@ export const openApiSpecification = {
             },
           },
           requestId: { type: 'string', format: 'uuid' },
+        },
+      },
+      Notification: {
+        type: 'object',
+        required: ['id', 'title', 'message', 'type', 'status', 'createdAt'],
+        properties: {
+          id: { type: 'string' },
+          title: { type: 'string' },
+          message: { type: 'string' },
+          type: {
+            type: 'string',
+            enum: ['TOP_UP', 'TRANSFER_SENT', 'TRANSFER_RECEIVED'],
+          },
+          status: { type: 'string', enum: ['PENDING', 'SENT', 'READ', 'FAILED'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
     },
@@ -305,6 +321,73 @@ export const openApiSpecification = {
         summary: 'Get the authenticated wallet balance',
         security: [{ bearerAuth: [] }],
         responses: { 200: { description: 'Wallet balance retrieved' }, 401: errorResponse, 404: errorResponse },
+      },
+    },
+    '/notifications': {
+      get: {
+        tags: ['Notifications'],
+        summary: 'List authenticated user notifications',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          },
+        ],
+        responses: {
+          200: { description: 'Notifications retrieved' },
+          401: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
+    '/notifications/unread-count': {
+      get: {
+        tags: ['Notifications'],
+        summary: 'Get unread notification count',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Unread notification count retrieved' },
+          401: errorResponse,
+        },
+      },
+    },
+    '/notifications/{notificationId}/read': {
+      patch: {
+        tags: ['Notifications'],
+        summary: 'Mark one notification as read',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          200: { description: 'Notification marked as read' },
+          401: errorResponse,
+          404: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
+    '/notifications/read-all': {
+      patch: {
+        tags: ['Notifications'],
+        summary: 'Mark all notifications as read',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Notifications marked as read' },
+          401: errorResponse,
+        },
       },
     },
   },

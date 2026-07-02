@@ -12,12 +12,14 @@ export class WalletService {
     walletRepository,
     userRepository,
     transactionRepository,
+    notificationService,
     transactionModel = Transaction,
     ledgerModel = Ledger,
   }) {
     this.walletRepository = walletRepository;
     this.userRepository = userRepository;
     this.transactionRepository = transactionRepository;
+    this.notificationService = notificationService;
     this.transactionModel = transactionModel;
     this.ledgerModel = ledgerModel;
   }
@@ -237,6 +239,12 @@ export class WalletService {
       session,
     );
 
+    await this.notificationService?.createTopUpNotification({
+      userId: walletToUpdate.userId,
+      amountInPaise,
+      session,
+    });
+
     return walletToUpdate;
   }
 
@@ -248,7 +256,15 @@ export class WalletService {
     idempotencyKey,
     session,
   }) {
+    const sender = await this.userRepository.findById(senderUserId, session);
     const receiver = await this.userRepository.findById(receiverUserId, session);
+
+    if (!sender) {
+      throw new AppError('Sender user not found', {
+        statusCode: 404,
+        code: 'SENDER_NOT_FOUND',
+      });
+    }
 
     if (!receiver) {
       throw new AppError('Receiver user not found', {
@@ -310,6 +326,13 @@ export class WalletService {
       },
       session,
     );
+
+    await this.notificationService?.createTransferNotifications({
+      senderUser: sender,
+      receiverUser: receiver,
+      amountInPaise,
+      session,
+    });
 
     return {
       transactionId,

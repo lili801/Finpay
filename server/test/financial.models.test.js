@@ -7,6 +7,7 @@ import {
   Currency,
   LedgerEntryType,
   NotificationStatus,
+  NotificationType,
   TransactionStatus,
   TransactionType,
   WalletStatus,
@@ -117,11 +118,13 @@ describe('financial model validation', () => {
       userId,
       title: 'Transfer completed',
       message: 'Your transfer was completed successfully.',
+      type: NotificationType.TRANSFER_RECEIVED,
     });
     const invalidNotification = new Notification({
       userId,
       title: ' ',
       message: '',
+      type: 'UNKNOWN',
       status: 'UNKNOWN',
     });
 
@@ -131,6 +134,7 @@ describe('financial model validation', () => {
     const validationError = invalidNotification.validateSync();
     assert.ok(validationError.errors.title);
     assert.ok(validationError.errors.message);
+    assert.ok(validationError.errors.type);
     assert.ok(validationError.errors.status);
   });
 });

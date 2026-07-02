@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { NotificationStatus } from '../constants/financial.constants.js';
+import { NotificationStatus, NotificationType } from '../constants/financial.constants.js';
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -24,6 +24,12 @@ const notificationSchema = new mongoose.Schema(
       minlength: 1,
       maxlength: 1_000,
     },
+    type: {
+      type: String,
+      enum: Object.values(NotificationType),
+      required: true,
+      immutable: true,
+    },
     status: {
       type: String,
       enum: Object.values(NotificationStatus),
@@ -39,6 +45,7 @@ const notificationSchema = new mongoose.Schema(
 );
 
 notificationSchema.index({ userId: 1, createdAt: -1 }, { name: 'user_notifications' });
+notificationSchema.index({ userId: 1, status: 1 }, { name: 'user_notification_status' });
 notificationSchema.index({ status: 1, createdAt: 1 }, { name: 'notification_delivery' });
 
 export const Notification = mongoose.model('Notification', notificationSchema);

@@ -36,6 +36,12 @@ export const NotificationStatus = Object.freeze({
   FAILED: 'FAILED',
 });
 
+export const NotificationType = Object.freeze({
+  TOP_UP: 'TOP_UP',
+  TRANSFER_SENT: 'TRANSFER_SENT',
+  TRANSFER_RECEIVED: 'TRANSFER_RECEIVED',
+});
+
 export const LedgerEntryType = Object.freeze({
   FUNDING: 'FUNDING',
   TRANSFER: 'TRANSFER',

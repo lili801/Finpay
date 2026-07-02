@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { successResponse } from '../utils/api-response.js';
 import { createAuthRouter } from './auth.routes.js';
+import { createNotificationRouter } from './notification.routes.js';
 import { createWalletRouter } from './wallet.routes.js';
 
 export function createApiRouter() {
@@ -17,6 +18,7 @@ export function createApiRouter() {
   });
   router.use('/auth', createAuthRouter());
   router.use('/wallet', createWalletRouter());
+  router.use('/notifications', createNotificationRouter());
 
   return router;
 }
