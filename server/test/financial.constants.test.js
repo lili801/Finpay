@@ -12,7 +12,7 @@ import {
 } from '../src/constants/financial.constants.js';
 
 const expectedConstants = [
-  [WalletStatus, ['ACTIVE', 'FROZEN', 'CLOSED']],
+  [WalletStatus, ['ACTIVE', 'BLOCKED', 'FROZEN', 'CLOSED']],
   [TransactionStatus, ['PENDING', 'PROCESSING', 'SUCCESS', 'SUCCEEDED', 'FAILED', 'REVERSED']],
   [TransactionType, ['ADD_MONEY', 'TOP_UP', 'TRANSFER', 'REFUND', 'REVERSAL']],
   [Currency, ['INR']],

@@ -8,6 +8,8 @@ import { NotificationService } from '../services/notification.service.js';
 import { WalletService } from '../services/wallet.service.js';
 import { PasswordHasher } from '../utils/password-hasher.js';
 import { TokenService } from '../utils/token-service.js';
+import { AdminRepository } from '../repositories/admin.repository.js';
+import { AdminService } from '../services/admin.service.js';
 
 const userRepository = new UserRepository();
 const notificationRepository = new NotificationRepository();
@@ -17,6 +19,8 @@ const passwordHasher = new PasswordHasher();
 const tokenService = new TokenService();
 const emailService = new MockEmailService();
 const notificationService = new NotificationService({ notificationRepository });
+const adminRepository = new AdminRepository();
+const adminService = new AdminService({ adminRepository });
 
 export const container = Object.freeze({
   authService: new AuthService({
@@ -43,4 +47,6 @@ export const container = Object.freeze({
   notificationRepository,
   transactionRepository,
   walletRepository,
+  adminRepository,
+  adminService,
 });

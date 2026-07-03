@@ -1,5 +1,6 @@
 export const WalletStatus = Object.freeze({
   ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
   FROZEN: 'FROZEN',
   CLOSED: 'CLOSED',
 });

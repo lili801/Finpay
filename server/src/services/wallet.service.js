@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 import { logger } from '../config/logger.js';
-import { TransactionSource, TransactionStatus, TransactionType } from '../constants/financial.constants.js';
+import { TransactionSource, TransactionStatus, TransactionType, WalletStatus } from '../constants/financial.constants.js';
 import { Transaction } from '../models/transaction.model.js';
 import { Ledger } from '../models/ledger.model.js';
 import { AppError } from '../utils/app-error.js';
@@ -87,6 +87,13 @@ export class WalletService {
       throw new AppError('Wallet not found', {
         statusCode: 404,
         code: 'WALLET_NOT_FOUND',
+      });
+    }
+
+    if (existingWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(`Wallet is not active: status is ${existingWallet.status}`, {
+        statusCode: 400,
+        code: 'WALLET_INACTIVE',
       });
     }
 
@@ -281,11 +288,25 @@ export class WalletService {
       });
     }
 
+    if (senderWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(`Sender wallet is not active: status is ${senderWallet.status}`, {
+        statusCode: 400,
+        code: 'SENDER_WALLET_INACTIVE',
+      });
+    }
+
     const receiverWallet = await this.walletRepository.findByUserId(receiverUserId, session);
     if (!receiverWallet) {
       throw new AppError('Receiver wallet not found', {
         statusCode: 404,
         code: 'RECEIVER_WALLET_NOT_FOUND',
+      });
+    }
+
+    if (receiverWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(`Receiver wallet is not active: status is ${receiverWallet.status}`, {
+        statusCode: 400,
+        code: 'RECEIVER_WALLET_INACTIVE',
       });
     }
 

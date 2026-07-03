@@ -19,7 +19,7 @@ export const openApiSpecification = {
       'Authentication API and financial domain contracts for the FinPay payment platform.',
   },
   servers: [{ url: `http://localhost:${env.PORT}/api/v1`, description: 'Local API' }],
-  tags: [{ name: 'Authentication' }, { name: 'Wallets' }, { name: 'Notifications' }],
+  tags: [{ name: 'Authentication' }, { name: 'Wallets' }, { name: 'Notifications' }, { name: 'Admin' }],
   components: {
     securitySchemes: {
       bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -387,6 +387,157 @@ export const openApiSpecification = {
         responses: {
           200: { description: 'Notifications marked as read' },
           401: errorResponse,
+        },
+      },
+    },
+    '/admin/summary': {
+      get: {
+        tags: ['Admin'],
+        summary: 'Get admin dashboard statistics summary',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Dashboard stats' },
+          401: errorResponse,
+          403: errorResponse,
+        },
+      },
+    },
+    '/admin/users': {
+      get: {
+        tags: ['Admin'],
+        summary: 'List and search users',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+          { name: 'search', in: 'query', schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'Users list' },
+          401: errorResponse,
+          403: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}': {
+      get: {
+        tags: ['Admin'],
+        summary: 'Get user details including wallet status and transaction count',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'User details' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}/wallet': {
+      get: {
+        tags: ['Admin'],
+        summary: 'Get a user wallet info',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'User wallet' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}/wallet/balance': {
+      get: {
+        tags: ['Admin'],
+        summary: 'Get user wallet balance',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'User wallet balance' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}/transactions/count': {
+      get: {
+        tags: ['Admin'],
+        summary: 'Get transaction count for user',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'User transaction count' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}/wallet/freeze': {
+      patch: {
+        tags: ['Admin'],
+        summary: 'Freeze user wallet',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'Wallet frozen' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
+    '/admin/users/{userId}/wallet/activate': {
+      patch: {
+        tags: ['Admin'],
+        summary: 'Activate user wallet',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'Wallet activated' },
+          401: errorResponse,
+          403: errorResponse,
+          404: errorResponse,
+          422: errorResponse,
+        },
+      },
+    },
+    '/admin/transactions': {
+      get: {
+        tags: ['Admin'],
+        summary: 'List, filter, and audit transactions',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+          { name: 'transactionId', in: 'query', schema: { type: 'string' } },
+          { name: 'status', in: 'query', schema: { type: 'string' } },
+          { name: 'type', in: 'query', schema: { type: 'string' } },
+          { name: 'userId', in: 'query', schema: { type: 'string' } },
+          { name: 'date', in: 'query', schema: { type: 'string' } },
+          { name: 'startDate', in: 'query', schema: { type: 'string' } },
+          { name: 'endDate', in: 'query', schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'Transactions list' },
+          401: errorResponse,
+          403: errorResponse,
+          422: errorResponse,
         },
       },
     },
