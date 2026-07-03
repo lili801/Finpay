@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #6366f1; /* Indigo / Violet Brand Primary */
+  --color-primary-dark: #4f46e5;
+  --color-primary-light: #e0e7ff;
+  --color-brand-purple: #7c3aed; /* Purple Theme color */
+  --color-brand-purple-dark: #6d28d9;
+  --color-brand-purple-light: #f5f3ff;
+  --color-fin-bg: #f8fafc;
+}
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
