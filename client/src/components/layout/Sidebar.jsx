@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { Wallet, LayoutDashboard, History, Bell, ShieldAlert, ArrowLeftRight } from 'lucide-react';
+import { Wallet, LayoutDashboard, History, Bell, ShieldAlert, ArrowLeftRight, User } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
 
 export const Sidebar = () => {
@@ -28,6 +28,11 @@ export const Sidebar = () => {
       to: '/dashboard/notifications',
       label: 'Notifications',
       icon: Bell,
+    },
+    {
+      to: '/dashboard/profile',
+      label: 'My Profile',
+      icon: User,
     },
   ];
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { Bell, LogOut, User, ShieldCheck } from 'lucide-react';
 import Button from '../ui/Button.jsx';
@@ -16,31 +17,33 @@ export const Navbar = () => {
       {/* Right-aligned section */}
       <div className="flex items-center gap-4">
         {/* Unread notification icon placeholder */}
-        <button className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer">
+        <Link to="/dashboard/notifications" className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer">
           <Bell className="h-5 w-5" />
           <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-indigo-600"></span>
-        </button>
+        </Link>
 
         {/* User profile dropdown info */}
         <div className="flex items-center gap-3 border-l border-slate-100 pl-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
-            <User className="h-4.5 w-4.5" />
-          </div>
-          <div className="hidden sm:flex flex-col text-left">
-            <span className="text-sm font-semibold text-slate-800">
-              {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
-            </span>
-            <span className="flex items-center gap-1 text-xxs font-bold uppercase tracking-wider text-slate-400">
-              {user?.role === 'ADMIN' ? (
-                <>
-                  <ShieldCheck className="h-3 w-3 text-brand-purple" />
-                  Admin
-                </>
-              ) : (
-                'User'
-              )}
-            </span>
-          </div>
+          <Link to="/dashboard/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple/10 text-brand-purple">
+              <User className="h-4.5 w-4.5" />
+            </div>
+            <div className="hidden sm:flex flex-col text-left">
+              <span className="text-sm font-semibold text-slate-800">
+                {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
+              </span>
+              <span className="flex items-center gap-1 text-xxs font-bold uppercase tracking-wider text-slate-400">
+                {user?.role === 'ADMIN' ? (
+                  <>
+                    <ShieldCheck className="h-3 w-3 text-brand-purple" />
+                    Admin
+                  </>
+                ) : (
+                  'User'
+                )}
+              </span>
+            </div>
+          </Link>
 
           <Button
             variant="ghost"

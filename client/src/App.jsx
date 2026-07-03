@@ -17,9 +17,10 @@ import ResetPassword from './pages/auth/ResetPassword.jsx';
 
 // Dashboard sub-routes
 import DashboardHome from './pages/dashboard/DashboardHome.jsx';
-import WalletPlaceholder from './pages/dashboard/WalletPlaceholder.jsx';
-import TransactionsPlaceholder from './pages/dashboard/TransactionsPlaceholder.jsx';
-import NotificationsPlaceholder from './pages/dashboard/NotificationsPlaceholder.jsx';
+import Wallet from './pages/dashboard/Wallet.jsx';
+import Transactions from './pages/dashboard/Transactions.jsx';
+import Notifications from './pages/dashboard/Notifications.jsx';
+import Profile from './pages/dashboard/Profile.jsx';
 import AdminPlaceholder from './pages/dashboard/AdminPlaceholder.jsx';
 
 export function App() {
@@ -87,9 +88,10 @@ export function App() {
             }
           >
             <Route index element={<DashboardHome />} />
-            <Route path="wallet" element={<WalletPlaceholder />} />
-            <Route path="transactions" element={<TransactionsPlaceholder />} />
-            <Route path="notifications" element={<NotificationsPlaceholder />} />
+            <Route path="wallet" element={<Wallet />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="admin" element={<AdminPlaceholder />} />
           </Route>
 
