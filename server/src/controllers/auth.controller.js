@@ -7,6 +7,7 @@ export class AuthController {
   }
 
   register = async (request, response) => {
+    console.log('Entered AuthController.register');
     const user = await this.authService.register(request.validated.body);
     response.status(201).json(
       successResponse({

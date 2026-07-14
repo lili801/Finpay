@@ -11,8 +11,15 @@ import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  identifier: z
+    .string()
+    .trim()
+    .min(1, 'Email or username is required')
+    .max(254, 'Email or username must not exceed 254 characters'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .max(128, 'Password must not exceed 128 characters'),
 });
 
 export const Login = () => {
@@ -71,11 +78,11 @@ export const Login = () => {
           <div className="space-y-4">
             <div className="relative">
               <Input
-                label="Email Address"
-                type="email"
-                placeholder="you@example.com"
-                error={errors.email?.message}
-                {...register('email')}
+                label="Email or Username"
+                type="text"
+                placeholder="Enter your email or username"
+                error={errors.identifier?.message}
+                {...register('identifier')}
                 className="pl-10"
               />
               <Mail className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />

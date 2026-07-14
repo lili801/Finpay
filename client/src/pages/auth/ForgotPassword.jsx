@@ -11,7 +11,12 @@ import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email('Please enter a valid email address')
+    .max(254, 'Email must not exceed 254 characters'),
 });
 
 export const ForgotPassword = () => {

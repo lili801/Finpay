@@ -1,24 +1,48 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+/* 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+console.log("LOADED MY VITE CONFIG");
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-    },
+  plugins: [react()],
+   optimizeDeps: {
+    exclude: ["lucide-react"],
   },
   server: {
     port: 5173,
+    strictPort: true,
     proxy: {
-      '/api': {
-        target: 'http://localhost:4000',
+      "/api": {
+        target: "http://127.0.0.1:4000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+}); */
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+
+console.log("LOADED MY VITE CONFIG");
+
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  optimizeDeps: {
+    exclude: ["lucide-react"],
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:4000",
         changeOrigin: true,
         secure: false,
       },

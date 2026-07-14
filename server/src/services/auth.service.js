@@ -17,6 +17,7 @@ export class AuthService {
   }
 
   async register({ firstName, lastName, username, email, password }) {
+    console.log('Entered AuthService.register');
     const conflict = await this.userRepository.findIdentityConflict({ email, username });
 
     if (conflict) {
@@ -50,6 +51,7 @@ export class AuthService {
       throw error;
     }
 
+    console.log('Before calling #deliverVerificationEmail');
     await this.#deliverVerificationEmail(user, verificationToken);
     if (this.walletService) {
       await this.walletService.getOrCreateWalletForUser(user.id);
@@ -251,6 +253,7 @@ export class AuthService {
   }
 
   async #deliverVerificationEmail(user, token) {
+    console.log('Inside #deliverVerificationEmail');
     const verificationUrl = `${env.PUBLIC_APP_URL}/verify-email?token=${encodeURIComponent(token)}`;
     try {
       await this.emailService.sendEmailVerification({ email: user.email, verificationUrl });

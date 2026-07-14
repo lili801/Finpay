@@ -10,19 +10,42 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Input from '../../components/ui/Input.jsx';
 
-const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  email: z.string().email('Please type a valid email address'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-});
+const registerSchema = z
+  .object({
+    firstName: z
+      .string()
+      .trim()
+      .min(1, 'First name is required')
+      .max(50, 'First name must not exceed 50 characters')
+      .regex(/^[\p{L}\p{M}' -]+$/u, 'First name contains unsupported characters'),
+    lastName: z
+      .string()
+      .trim()
+      .min(1, 'Last name is required')
+      .max(50, 'Last name must not exceed 50 characters')
+      .regex(/^[\p{L}\p{M}' -]+$/u, 'Last name contains unsupported characters'),
+    username: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .min(3, 'Username must be at least 3 characters')
+      .max(30, 'Username must not exceed 30 characters')
+      .regex(/^[a-z0-9_]+$/, 'Username may contain lowercase letters, numbers, and underscores'),
+    email: z.string().trim().toLowerCase().email('Please type a valid email address').max(254),
+    password: z
+      .string()
+      .min(12, 'Password must be at least 12 characters')
+      .max(128, 'Password must not exceed 128 characters')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export const Register = () => {
   const { register: registerUser } = useAuth();
@@ -33,6 +56,7 @@ export const Register = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -46,8 +70,20 @@ export const Register = () => {
       navigate('/login');
     } catch (error) {
       console.error(error);
-      const message = error.response?.data?.error?.message || 'Registration failed. Try again.';
-      toast.error(message);
+      const backendError = error.response?.data?.error;
+      if (backendError?.details && Array.isArray(backendError.details)) {
+        backendError.details.forEach((detail) => {
+          const fieldPath = detail.path.replace(/^body\./, '');
+          setError(fieldPath, {
+            type: 'server',
+            message: detail.message,
+          });
+        });
+        toast.error(backendError.message || 'Validation failed.');
+      } else {
+        const message = backendError?.message || 'Registration failed. Try again.';
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +160,7 @@ export const Register = () => {
               error={errors.password?.message}
               {...register('password')}
               className="pl-10 pr-10"
-              helperText="Must be 8+ chars with uppercase, lowercase, number, and special char."
+              helperText="Must be 12+ chars with uppercase, lowercase, number, and special char."
             />
             <Lock className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
             <button
@@ -134,6 +170,18 @@ export const Register = () => {
             >
               {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
             </button>
+          </div>
+
+          <div className="relative">
+            <Input
+              label="Confirm Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
+              className="pl-10 pr-10"
+            />
+            <Lock className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
           </div>
 
           <div className="pt-2">

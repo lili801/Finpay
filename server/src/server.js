@@ -16,6 +16,10 @@ async function shutdown(signal) {
   isShuttingDown = true;
   logger.info('Graceful shutdown started', { signal });
 
+  if (env.NODE_ENV !== 'production' && typeof httpServer.closeAllConnections === 'function') {
+    httpServer.closeAllConnections();
+  }
+
   const forceShutdownTimer = setTimeout(() => {
     logger.error('Graceful shutdown timed out');
     process.exit(1);
@@ -43,6 +47,11 @@ async function shutdown(signal) {
 
 async function startServer() {
   await connectDatabase();
+
+  httpServer.on('error', (error) => {
+    logger.error('HTTP server error', { error });
+    process.exit(1);
+  });
 
   httpServer.listen(env.PORT, env.HOST, () => {
     logger.info('FinPay API started', {

@@ -39,10 +39,10 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const login = async ({ email, password }) => {
+  const login = async ({ identifier, password }) => {
     setLoading(true);
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { identifier, password });
       const { accessToken, user: userData } = response.data.data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async ({ firstName, lastName, username, email, password }) => {
+  const register = async ({ firstName, lastName, username, email, password, confirmPassword }) => {
     setLoading(true);
     try {
       const response = await api.post('/auth/register', {
@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
         username,
         email,
         password,
+        confirmPassword,
       });
       return response.data;
     } finally {
@@ -71,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post('/auth/logout', {});
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -91,8 +92,8 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
-  const resetPassword = async ({ token, password }) => {
-    const response = await api.post('/auth/reset-password', { token, password });
+  const resetPassword = async ({ token, password, confirmPassword }) => {
+    const response = await api.post('/auth/reset-password', { token, password, confirmPassword });
     return response.data;
   };
 

@@ -14,15 +14,16 @@ const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-    confirmPassword: z.string().min(8, 'Please confirm your password'),
+      .min(12, 'Password must contain at least 12 characters')
+      .max(128, 'Password must not exceed 128 characters')
+      .regex(/[a-z]/, 'Password must contain a lowercase letter')
+      .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+      .regex(/[0-9]/, 'Password must contain a number')
+      .regex(/[^A-Za-z0-9]/, 'Password must contain a special character'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords must match',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
 
@@ -50,7 +51,7 @@ export const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      await resetPassword({ token, password: data.password });
+      await resetPassword({ token, password: data.password, confirmPassword: data.confirmPassword });
       toast.success('Password reset successfully. You can now login.');
       navigate('/login');
     } catch (error) {
@@ -86,7 +87,7 @@ export const ResetPassword = () => {
               error={errors.password?.message}
               {...register('password')}
               className="pl-10 pr-10"
-              helperText="Must be 8+ chars with uppercase, lowercase, number, and special char."
+              helperText="Must be 12+ chars with uppercase, lowercase, number, and special char."
             />
             <Lock className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
             <button

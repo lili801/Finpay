@@ -18,7 +18,6 @@ RUN addgroup --system --gid 1001 finpay \
   && adduser --system --uid 1001 --ingroup finpay finpay
 
 COPY --from=dependencies --chown=finpay:finpay /app/node_modules ./node_modules
-COPY --from=dependencies --chown=finpay:finpay /app/server/node_modules ./server/node_modules
 COPY --chown=finpay:finpay server/package.json ./server/package.json
 COPY --chown=finpay:finpay server/src ./server/src
 

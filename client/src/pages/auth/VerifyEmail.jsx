@@ -15,9 +15,9 @@ export const VerifyEmail = () => {
   useEffect(() => {
     const token = searchParams.get('token');
 
-    if (!token) {
+    if (!token || token.trim().length < 32 || token.trim().length > 512) {
       setStatus('error');
-      setMessage('Verification token is missing. Please check your verification link.');
+      setMessage('Invalid or expired verification token.');
       return;
     }
 
