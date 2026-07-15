@@ -18,7 +18,7 @@ export class WalletController {
   transfer = async (request, response) => {
     const result = await this.walletService.transfer({
       senderUserId: request.auth.userId,
-      receiverUserId: request.validated.body.receiverUserId,
+      receiverMobileNumber: request.validated.body.receiverMobileNumber,
       amountInPaise: request.validated.body.amount,
     });
 

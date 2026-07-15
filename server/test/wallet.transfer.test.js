@@ -30,7 +30,7 @@ before(async () => {
   sender = await User.create({
     firstName: 'Grace',
     lastName: 'Hopper',
-    username: 'grace',
+    mobileNumber: '9000000001',
     email: 'grace@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -39,7 +39,7 @@ before(async () => {
   receiver = await User.create({
     firstName: 'Katherine',
     lastName: 'Johnson',
-    username: 'katherine',
+    mobileNumber: '9000000002',
     email: 'katherine@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -56,7 +56,7 @@ describe('wallet transfer', () => {
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: receiver.id, amount: '75.50' })
+      .send({ receiverMobileNumber: receiver.mobileNumber, amount: '75.50' })
       .expect(200);
 
     assert.equal(response.body.success, true);
@@ -85,7 +85,7 @@ describe('wallet transfer', () => {
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: sender.id, amount: '10.00' })
+      .send({ receiverMobileNumber: sender.mobileNumber, amount: '10.00' })
       .expect(400);
 
     assert.equal(response.body.error.code, 'SELF_TRANSFER_NOT_ALLOWED');
@@ -99,19 +99,17 @@ describe('wallet transfer', () => {
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: receiver.id, amount: '10.00' })
+      .send({ receiverMobileNumber: receiver.mobileNumber, amount: '10.00' })
       .expect(400);
 
     assert.equal(response.body.error.code, 'INSUFFICIENT_BALANCE');
   });
 
   it('rejects transfers to a missing receiver user', async () => {
-    const missingReceiverId = '64f000000000000000000001';
-
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: missingReceiverId, amount: '1.00' })
+      .send({ receiverMobileNumber: '7654321098', amount: '1.00' })
       .expect(404);
 
     assert.equal(response.body.error.code, 'RECEIVER_NOT_FOUND');
@@ -124,7 +122,7 @@ describe('wallet transfer', () => {
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: receiver.id, amount: '1.00' })
+      .send({ receiverMobileNumber: receiver.mobileNumber, amount: '1.00' })
       .expect(404);
 
     assert.equal(response.body.error.code, 'RECEIVER_WALLET_NOT_FOUND');
@@ -134,7 +132,7 @@ describe('wallet transfer', () => {
     const response = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: receiver.id, amount: '0.00' })
+      .send({ receiverMobileNumber: receiver.mobileNumber, amount: '0.00' })
       .expect(422);
 
     assert.equal(response.body.success, false);

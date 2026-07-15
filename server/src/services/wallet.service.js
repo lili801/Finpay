@@ -132,7 +132,16 @@ export class WalletService {
     };
   }
 
-  async transfer({ senderUserId, receiverUserId, amountInPaise }) {
+  async transfer({ senderUserId, receiverMobileNumber, amountInPaise }) {
+    const receiver = await this.userRepository.findByMobileNumber(receiverMobileNumber);
+    if (!receiver) {
+      throw new AppError('Receiver user not found', {
+        statusCode: 404,
+        code: 'RECEIVER_NOT_FOUND',
+      });
+    }
+    const receiverUserId = receiver.id || receiver._id.toString();
+
     if (String(senderUserId) === String(receiverUserId)) {
       throw new AppError('Sender cannot transfer to self', {
         statusCode: 400,

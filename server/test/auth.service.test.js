@@ -8,7 +8,7 @@ import { InMemoryUserRepository } from './helpers/in-memory-user-repository.js';
 const registration = {
   firstName: 'Ada',
   lastName: 'Lovelace',
-  username: 'ada_lovelace',
+  mobileNumber: '9876543210',
   email: 'ada@example.com',
   password: 'Strong!Password123',
 };
@@ -51,7 +51,7 @@ describe('AuthService', () => {
     storedUser.isEmailVerified = true;
 
     const result = await service.login({
-      identifier: registration.username,
+      identifier: registration.mobileNumber,
       password: registration.password,
     });
 
@@ -86,7 +86,7 @@ describe('AuthService', () => {
     const storedUser = await repository.findByIdentifier(registration.email);
     storedUser.isEmailVerified = true;
     const login = await service.login({
-      identifier: registration.username,
+      identifier: registration.mobileNumber,
       password: registration.password,
     });
 

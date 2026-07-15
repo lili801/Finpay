@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  Smartphone,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -39,11 +40,10 @@ const addMoneySchema = z.object({
 });
 
 const transferSchema = z.object({
-  receiverUserId: z
+  receiverMobileNumber: z
     .string()
     .trim()
-    .length(24, 'Receiver User ID must be a 24-character hexadecimal identifier')
-    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid hexadecimal format'),
+    .regex(/^[0-9]{10}$/, 'Receiver Mobile Number must be exactly 10 digits'),
   amount: z
     .string()
     .trim()
@@ -155,7 +155,7 @@ export const Wallet = () => {
 
     try {
       const response = await api.post('/wallet/transfer', {
-        receiverUserId: transferData.receiverUserId,
+        receiverMobileNumber: transferData.receiverMobileNumber,
         amount: transferData.amount,
       });
 
@@ -340,7 +340,7 @@ export const Wallet = () => {
               <div className="space-y-6">
                 <div className="space-y-1">
                   <h3 className="text-lg font-bold text-slate-900">Transfer Funds</h3>
-                  <p className="text-slate-500 text-xs">Instantly send funds directly to another user's wallet via their MongoDB ID.</p>
+                  <p className="text-slate-500 text-xs">Instantly send funds directly to another user's wallet via their Mobile Number.</p>
                 </div>
 
                 {wallet?.status !== 'ACTIVE' && (
@@ -356,15 +356,15 @@ export const Wallet = () => {
                 <form onSubmit={handleSubmitTransfer(onTransferInitiate)} className="space-y-6">
                   <div className="relative">
                     <Input
-                      label="Receiver User ID"
+                      label="Receiver Mobile Number"
                       type="text"
-                      placeholder="e.g. 64749f7ba3081e..."
-                      error={errorsTransfer.receiverUserId?.message}
+                      placeholder="e.g. 9876543210"
+                      error={errorsTransfer.receiverMobileNumber?.message}
                       disabled={wallet?.status !== 'ACTIVE'}
-                      {...registerTransfer('receiverUserId')}
+                      {...registerTransfer('receiverMobileNumber')}
                       className="pl-10"
                     />
-                    <User className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
+                    <Smartphone className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
                   </div>
 
                   <div className="relative">
@@ -409,8 +409,8 @@ export const Wallet = () => {
 
                 <div className="border border-slate-100 rounded-xl divide-y divide-slate-100 bg-slate-50">
                   <div className="p-4 flex items-center justify-between text-sm">
-                    <span className="font-medium text-slate-500">Receiver User ID</span>
-                    <span className="font-semibold text-slate-800 font-mono">{transferData.receiverUserId}</span>
+                    <span className="font-medium text-slate-500">Receiver Mobile Number</span>
+                    <span className="font-semibold text-slate-800 font-mono">{transferData.receiverMobileNumber}</span>
                   </div>
                   <div className="p-4 flex items-center justify-between text-sm">
                     <span className="font-medium text-slate-500">Transfer Amount</span>

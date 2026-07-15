@@ -34,7 +34,7 @@ before(async () => {
   sender = await User.create({
     firstName: 'Mae',
     lastName: 'Jemison',
-    username: 'mae',
+    mobileNumber: '9000000003',
     email: 'mae@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -43,7 +43,7 @@ before(async () => {
   receiver = await User.create({
     firstName: 'Sally',
     lastName: 'Ride',
-    username: 'sally',
+    mobileNumber: '9000000004',
     email: 'sally@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -75,7 +75,7 @@ describe('notifications', () => {
     await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${senderAccessToken}`)
-      .send({ receiverUserId: receiver.id, amount: '250.00' })
+      .send({ receiverMobileNumber: receiver.mobileNumber, amount: '250.00' })
       .expect(200);
 
     const senderNotification = await Notification.findOne({

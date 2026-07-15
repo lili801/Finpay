@@ -32,7 +32,7 @@ before(async () => {
   adminUser = await User.create({
     firstName: 'System',
     lastName: 'Admin',
-    username: 'sysadmin',
+    mobileNumber: '9000000010',
     email: 'admin@example.com',
     password: passwordHash,
     role: 'ADMIN',
@@ -42,8 +42,8 @@ before(async () => {
   regularUser = await User.create({
     firstName: 'Mae',
     lastName: 'Jemison',
-    username: 'mae',
-    email: 'mae@example.com',
+    mobileNumber: '9000000011',
+    email: 'mae-admin@example.com',
     password: passwordHash,
     role: 'USER',
     isEmailVerified: true,
@@ -107,14 +107,14 @@ describe('admin panel features', () => {
     assert.equal(listRes.body.data.users.length, 2);
     assert.ok(listRes.body.meta.pagination);
 
-    // Search by username
+    // Search by mobile number
     const searchRes = await request(app)
-      .get('/api/v1/admin/users?search=mae')
+      .get('/api/v1/admin/users?search=9000000011')
       .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
     assert.equal(searchRes.body.data.users.length, 1);
-    assert.equal(searchRes.body.data.users[0].username, 'mae');
+    assert.equal(searchRes.body.data.users[0].mobileNumber, '9000000011');
   });
 
   it('shows user details, wallet and transaction count', async () => {
@@ -123,7 +123,7 @@ describe('admin panel features', () => {
       .set('Authorization', `Bearer ${adminAccessToken}`)
       .expect(200);
 
-    assert.equal(detailsRes.body.data.user.username, 'mae');
+    assert.equal(detailsRes.body.data.user.mobileNumber, '9000000011');
     assert.equal(detailsRes.body.data.wallet.balance, 10000);
     assert.equal(detailsRes.body.data.transactionCount, 1);
 
@@ -174,8 +174,8 @@ describe('admin panel features', () => {
     const sender2 = await User.create({
       firstName: 'Sally',
       lastName: 'Ride',
-      username: 'sally',
-      email: 'sally@example.com',
+      mobileNumber: '9000000012',
+      email: 'sally-admin@example.com',
       password: regularUser.password,
       role: 'USER',
       isEmailVerified: true,
@@ -187,7 +187,7 @@ describe('admin panel features', () => {
     const transferFromRes = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${regularAccessToken}`)
-      .send({ receiverUserId: sender2.id, amount: '10.00' })
+      .send({ receiverMobileNumber: sender2.mobileNumber, amount: '10.00' })
       .expect(400);
 
     assert.equal(transferFromRes.body.error.code, 'SENDER_WALLET_INACTIVE');
@@ -196,7 +196,7 @@ describe('admin panel features', () => {
     const transferToRes = await request(app)
       .post('/api/v1/wallet/transfer')
       .set('Authorization', `Bearer ${sender2AccessToken}`)
-      .send({ receiverUserId: regularUser.id, amount: '10.00' })
+      .send({ receiverMobileNumber: regularUser.mobileNumber, amount: '10.00' })
       .expect(400);
 
     assert.equal(transferToRes.body.error.code, 'RECEIVER_WALLET_INACTIVE');

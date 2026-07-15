@@ -17,14 +17,19 @@ export class UserRepository {
     return User.findById(id).select(SENSITIVE_FIELDS);
   }
 
+  async findByMobileNumber(mobileNumber, session) {
+    const query = User.findOne({ mobileNumber });
+    return session ? query.session(session) : query;
+  }
+
   async findByIdentifier(identifier) {
-    const query = identifier.includes('@') ? { email: identifier } : { username: identifier };
+    const query = /^\d{10}$/.test(identifier) ? { mobileNumber: identifier } : { email: identifier };
     return User.findOne(query).select(SENSITIVE_FIELDS);
   }
 
-  async findIdentityConflict({ email, username }) {
-    return User.findOne({ $or: [{ email }, { username }] })
-      .select('email username')
+  async findIdentityConflict({ email, mobileNumber }) {
+    return User.findOne({ $or: [{ email }, { mobileNumber }] })
+      .select('email mobileNumber')
       .lean();
   }
 

@@ -39,7 +39,7 @@ export const AdminPlaceholder = () => {
   const [loadingUserDetails, setLoadingUserDetails] = useState(false);
 
   // Wallet Freeze/Activate States
-  const [confirmingAction, setConfirmingAction] = useState(null); // { type: 'freeze'|'activate', userId: string, username: string }
+  const [confirmingAction, setConfirmingAction] = useState(null); // { type: 'freeze'|'activate', userId: string, mobileNumber: string }
   const [processingWalletAction, setProcessingWalletAction] = useState(false);
 
   // Transactions Tab States
@@ -320,7 +320,7 @@ export const AdminPlaceholder = () => {
                 <form onSubmit={handleUserSearchSubmit} className="p-4 border-b border-slate-100 flex gap-2">
                   <div className="relative flex-1">
                     <Input
-                      placeholder="Search by name, username, or email..."
+                      placeholder="Search by name, mobile number, or email..."
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
                       className="pl-9 h-10 text-xs"
@@ -338,7 +338,7 @@ export const AdminPlaceholder = () => {
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100 text-xxs font-bold uppercase tracking-wider text-slate-400">
                         <th className="py-3 px-5">Name</th>
-                        <th className="py-3 px-5">Username</th>
+                        <th className="py-3 px-5">Mobile Number</th>
                         <th className="py-3 px-5">Email</th>
                         <th className="py-3 px-5">Role</th>
                       </tr>
@@ -368,7 +368,7 @@ export const AdminPlaceholder = () => {
                             <td className="py-3.5 px-5 font-semibold text-slate-800">
                               {u.firstName} {u.lastName}
                             </td>
-                            <td className="py-3.5 px-5 text-slate-500 font-mono">@{u.username}</td>
+                            <td className="py-3.5 px-5 text-slate-500 font-mono">{u.mobileNumber}</td>
                             <td className="py-3.5 px-5 text-slate-500">{u.email}</td>
                             <td className="py-3.5 px-5">
                               <span className={`px-1.5 py-0.5 rounded-xs text-[9px] font-bold ${
@@ -439,8 +439,8 @@ export const AdminPlaceholder = () => {
                   {/* Account detail list */}
                   <div className="space-y-3 border-t border-slate-100 pt-4 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-500 font-medium">Username</span>
-                      <span className="font-semibold text-slate-800 font-mono">@{selectedUser.user.username}</span>
+                      <span className="text-slate-500 font-medium">Mobile Number</span>
+                      <span className="font-semibold text-slate-800 font-mono">{selectedUser.user.mobileNumber}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500 font-medium">Email Address</span>
@@ -509,7 +509,7 @@ export const AdminPlaceholder = () => {
                           onClick={() => setConfirmingAction({
                             type: 'freeze',
                             userId: selectedUser.user._id,
-                            username: selectedUser.user.username
+                            mobileNumber: selectedUser.user.mobileNumber
                           })}
                         >
                           <ShieldAlert className="h-4 w-4" />
@@ -521,7 +521,7 @@ export const AdminPlaceholder = () => {
                           onClick={() => setConfirmingAction({
                             type: 'activate',
                             userId: selectedUser.user._id,
-                            username: selectedUser.user.username
+                            mobileNumber: selectedUser.user.mobileNumber
                           })}
                         >
                           <ShieldCheck className="h-4 w-4" />
@@ -749,7 +749,7 @@ export const AdminPlaceholder = () => {
                   </h3>
                   <p className="text-slate-500 text-xs leading-relaxed">
                     Are you sure you want to {confirmingAction.type === 'freeze' ? 'freeze' : 'activate'} the wallet for user{' '}
-                    <span className="font-bold text-slate-800">@{confirmingAction.username}</span>?
+                    <span className="font-bold text-slate-800">{confirmingAction.mobileNumber}</span>?
                     {confirmingAction.type === 'freeze' && ' This will block all credits, debits and transfers instantly.'}
                   </p>
                 </div>

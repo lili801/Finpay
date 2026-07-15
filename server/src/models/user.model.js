@@ -9,13 +9,16 @@ const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true, trim: true, maxlength: 50 },
     lastName: { type: String, required: true, trim: true, maxlength: 50 },
-    username: {
+    mobileNumber: {
       type: String,
       required: true,
       trim: true,
-      lowercase: true,
-      minlength: 3,
-      maxlength: 30,
+      validate: {
+        validator: function (v) {
+          return /^[0-9]{10}$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid 10-digit mobile number!`,
+      },
     },
     email: { type: String, required: true, trim: true, lowercase: true, maxlength: 254 },
     password: { type: String, required: true, select: false },
@@ -51,7 +54,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.index({ email: 1 }, { unique: true, name: 'unique_user_email' });
-userSchema.index({ username: 1 }, { unique: true, name: 'unique_username' });
+userSchema.index({ mobileNumber: 1 }, { unique: true, name: 'unique_mobileNumber' });
 userSchema.index(
   { emailVerificationTokenHash: 1 },
   { sparse: true, name: 'email_verification_token' },

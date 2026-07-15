@@ -25,18 +25,26 @@ export class InMemoryUserRepository {
     return this.findById(id);
   }
 
+  async findByMobileNumber(mobileNumber) {
+    return (
+      [...this.users.values()].find((user) => user.mobileNumber === mobileNumber) ?? null
+    );
+  }
+
   async findByIdentifier(identifier) {
+    const isMobile = /^[0-9]{10}$/.test(identifier);
     return (
       [...this.users.values()].find(
-        (user) => user.email === identifier || user.username === identifier,
+        (user) => user.email === identifier || (isMobile && user.mobileNumber === identifier),
       ) ?? null
     );
   }
 
-  async findIdentityConflict({ email, username }) {
+  async findIdentityConflict({ email, mobileNumber }) {
     return (
-      [...this.users.values()].find((user) => user.email === email || user.username === username) ??
-      null
+      [...this.users.values()].find(
+        (user) => user.email === email || user.mobileNumber === mobileNumber,
+      ) ?? null
     );
   }
 

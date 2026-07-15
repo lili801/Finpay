@@ -33,12 +33,12 @@ export const openApiSpecification = {
       ...financialSchemas,
       User: {
         type: 'object',
-        required: ['id', 'firstName', 'lastName', 'username', 'email', 'role'],
+        required: ['id', 'firstName', 'lastName', 'mobileNumber', 'email', 'role'],
         properties: {
           id: { type: 'string' },
           firstName: { type: 'string' },
           lastName: { type: 'string' },
-          username: { type: 'string' },
+          mobileNumber: { type: 'string' },
           email: { type: 'string', format: 'email' },
           role: { type: 'string', enum: ['USER', 'ADMIN'] },
           isEmailVerified: { type: 'boolean' },
@@ -92,7 +92,7 @@ export const openApiSpecification = {
                 required: [
                   'firstName',
                   'lastName',
-                  'username',
+                  'mobileNumber',
                   'email',
                   'password',
                   'confirmPassword',
@@ -100,7 +100,7 @@ export const openApiSpecification = {
                 properties: {
                   firstName: { type: 'string' },
                   lastName: { type: 'string' },
-                  username: { type: 'string' },
+                  mobileNumber: { type: 'string' },
                   email: { type: 'string', format: 'email' },
                   password: { type: 'string', format: 'password' },
                   confirmPassword: { type: 'string', format: 'password' },
@@ -115,7 +115,7 @@ export const openApiSpecification = {
     '/auth/login': {
       post: {
         tags: ['Authentication'],
-        summary: 'Login with username or email',
+        summary: 'Login with email or mobile number',
         requestBody: {
           required: true,
           content: {
@@ -264,9 +264,9 @@ export const openApiSpecification = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['receiverUserId', 'amount'],
+                required: ['receiverMobileNumber', 'amount'],
                 properties: {
-                  receiverUserId: { type: 'string' },
+                  receiverMobileNumber: { type: 'string' },
                   amount: { type: ['string', 'integer'] },
                 },
               },

@@ -11,6 +11,15 @@ export async function connectDatabase() {
     serverSelectionTimeoutMS: 10_000,
   });
 
+  if (env.NODE_ENV !== 'production') {
+    try {
+      await mongoose.connection.db.collection('users').dropIndex('unique_username');
+      logger.info('Dropped legacy unique_username index');
+    } catch (err) {
+      // Index might not exist, which is fine
+    }
+  }
+
   logger.info('MongoDB connection established');
 }
 

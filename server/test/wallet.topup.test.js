@@ -29,8 +29,8 @@ before(async () => {
   const user = await User.create({
     firstName: 'Ada',
     lastName: 'Lovelace',
-    username: 'ada',
-    email: 'ada@example.com',
+    mobileNumber: '9000000005',
+    email: 'ada-topup@example.com',
     password: await passwordHasher.hash('Strong!Password123'),
     isEmailVerified: true,
   });

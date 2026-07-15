@@ -87,7 +87,10 @@ export const transferAmountSchema = z
 export const transferSchema = z.object({
   body: z
     .object({
-      receiverUserId: mongoIdSchema,
+      receiverMobileNumber: z
+        .string()
+        .trim()
+        .regex(/^[0-9]{10}$/, 'Receiver Mobile Number must be exactly 10 digits'),
       amount: transferAmountSchema,
     })
     .strict(),

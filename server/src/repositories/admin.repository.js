@@ -57,7 +57,7 @@ export class AdminRepository {
     if (search) {
       const regex = new RegExp(search, 'i');
       query.$or = [
-        { username: regex },
+        { mobileNumber: regex },
         { email: regex },
         { firstName: regex },
         { lastName: regex }

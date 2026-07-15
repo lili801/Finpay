@@ -16,13 +16,14 @@ export class AuthService {
     this.walletService = walletService;
   }
 
-  async register({ firstName, lastName, username, email, password }) {
+  async register({ firstName, lastName, mobileNumber, email, password }) {
     console.log('Entered AuthService.register');
-    const conflict = await this.userRepository.findIdentityConflict({ email, username });
+    const conflict = await this.userRepository.findIdentityConflict({ email, mobileNumber });
 
     if (conflict) {
-      const field = conflict.email === email ? 'email' : 'username';
-      throw new AppError(`An account with that ${field} already exists`, {
+      const field = conflict.email === email ? 'email' : 'mobileNumber';
+      const displayField = field === 'mobileNumber' ? 'mobile number' : field;
+      throw new AppError(`An account with that ${displayField} already exists`, {
         statusCode: 409,
         code: `${field.toUpperCase()}_ALREADY_EXISTS`,
       });
@@ -36,14 +37,14 @@ export class AuthService {
       user = await this.userRepository.create({
         firstName,
         lastName,
-        username,
+        mobileNumber,
         email,
         password: passwordHash,
         emailVerificationTokenHash: this.tokenService.hashToken(verificationToken),
       });
     } catch (error) {
       if (error?.code === 11000) {
-        throw new AppError('An account with that email or username already exists', {
+        throw new AppError('An account with that email or mobile number already exists', {
           statusCode: 409,
           code: 'IDENTITY_ALREADY_EXISTS',
         });
@@ -76,7 +77,7 @@ export class AuthService {
         event: 'auth.login.failed',
         reason: 'invalid_credentials',
       });
-      throw new AppError('Invalid username, email, or password', INVALID_CREDENTIALS);
+      throw new AppError('Invalid email, mobile number, or password', INVALID_CREDENTIALS);
     }
 
     if (!user.isEmailVerified) {
@@ -284,7 +285,7 @@ export class AuthService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      username: user.username,
+      mobileNumber: user.mobileNumber,
       email: user.email,
       role: user.role,
       isEmailVerified: user.isEmailVerified,

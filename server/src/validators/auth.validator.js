@@ -7,13 +7,10 @@ const nameSchema = z
   .max(50, 'Name must not exceed 50 characters')
   .regex(/^[\p{L}\p{M}' -]+$/u, 'Name contains unsupported characters');
 
-const usernameSchema = z
+const mobileNumberSchema = z
   .string()
   .trim()
-  .toLowerCase()
-  .min(3, 'Username must contain at least 3 characters')
-  .max(30, 'Username must not exceed 30 characters')
-  .regex(/^[a-z0-9_]+$/, 'Username may contain lowercase letters, numbers, and underscores');
+  .regex(/^[0-9]{10}$/, 'Mobile number must be exactly 10 digits');
 
 const emailSchema = z.string().trim().toLowerCase().email().max(254);
 
@@ -39,7 +36,7 @@ export const registerSchema = z.object({
       .object({
         firstName: nameSchema,
         lastName: nameSchema,
-        username: usernameSchema,
+        mobileNumber: mobileNumberSchema,
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: z.string(),
@@ -54,8 +51,16 @@ export const loginSchema = z.object({
       identifier: z
         .string()
         .trim()
-        .min(1)
-        .max(254)
+        .min(1, 'Email or mobile number is required')
+        .max(254, 'Email or mobile number must not exceed 254 characters')
+        .refine(
+          (val) => {
+            const isEmail = z.string().email().safeParse(val).success;
+            const isMobile = /^[0-9]{10}$/.test(val);
+            return isEmail || isMobile;
+          },
+          { message: 'Identifier must be a valid email or a 10-digit mobile number' }
+        )
         .transform((value) => value.toLowerCase()),
       password: z.string().min(1).max(128),
     })

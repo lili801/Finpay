@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { User as UserIcon, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Eye, EyeOff, ShieldCheck, Phone } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext.jsx';
 import Button from '../../components/ui/Button.jsx';
@@ -24,13 +24,10 @@ const registerSchema = z
       .min(1, 'Last name is required')
       .max(50, 'Last name must not exceed 50 characters')
       .regex(/^[\p{L}\p{M}' -]+$/u, 'Last name contains unsupported characters'),
-    username: z
+    mobileNumber: z
       .string()
       .trim()
-      .toLowerCase()
-      .min(3, 'Username must be at least 3 characters')
-      .max(30, 'Username must not exceed 30 characters')
-      .regex(/^[a-z0-9_]+$/, 'Username may contain lowercase letters, numbers, and underscores'),
+      .regex(/^[0-9]{10}$/, 'Mobile number must be exactly 10 digits'),
     email: z.string().trim().toLowerCase().email('Please type a valid email address').max(254),
     password: z
       .string()
@@ -130,14 +127,14 @@ export const Register = () => {
 
           <div className="relative">
             <Input
-              label="Username"
+              label="Mobile Number"
               type="text"
-              placeholder="mae"
-              error={errors.username?.message}
-              {...register('username')}
+              placeholder="9876543210"
+              error={errors.mobileNumber?.message}
+              {...register('mobileNumber')}
               className="pl-10"
             />
-            <UserIcon className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
+            <Phone className="absolute left-3.5 top-[38px] h-4 w-4 text-slate-400" />
           </div>
 
           <div className="relative">

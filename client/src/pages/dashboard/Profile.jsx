@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { User, Mail, ShieldAlert, Calendar, LogOut, CheckCircle } from 'lucide-react';
+import { User, Mail, ShieldAlert, Calendar, LogOut, CheckCircle, Smartphone, Wallet } from 'lucide-react';
 import Button from '../../components/ui/Button.jsx';
 import toast from 'react-hot-toast';
+import api from '../../services/api.js';
 
 export const Profile = () => {
   const { user, logout } = useAuth();
+  const [walletStatus, setWalletStatus] = useState('Loading...');
+
+  useEffect(() => {
+    const fetchWalletStatus = async () => {
+      try {
+        const response = await api.get('/wallet');
+        setWalletStatus(response.data?.data?.wallet?.status || 'Unknown');
+      } catch (error) {
+        console.error('Failed to fetch wallet status', error);
+        setWalletStatus('Error');
+      }
+    };
+    if (user) {
+      fetchWalletStatus();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -33,10 +50,27 @@ export const Profile = () => {
             <h2 className="text-xl font-bold text-slate-900">
               {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
             </h2>
-            <span className="text-sm font-semibold text-brand-purple font-mono">@{user?.username}</span>
           </div>
 
           <div className="border-t border-slate-100 pt-6 space-y-4 text-sm">
+            {/* First Name */}
+            <div className="flex items-center gap-3">
+              <User className="h-4.5 w-4.5 text-slate-400" />
+              <div>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">First Name</span>
+                <span className="text-slate-700 font-semibold">{user?.firstName}</span>
+              </div>
+            </div>
+
+            {/* Last Name */}
+            <div className="flex items-center gap-3">
+              <User className="h-4.5 w-4.5 text-slate-400" />
+              <div>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Last Name</span>
+                <span className="text-slate-700 font-semibold">{user?.lastName}</span>
+              </div>
+            </div>
+
             {/* Email */}
             <div className="flex items-center gap-3">
               <Mail className="h-4.5 w-4.5 text-slate-400" />
@@ -44,16 +78,15 @@ export const Profile = () => {
                 <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Email Address</span>
                 <span className="text-slate-700 font-semibold">{user?.email}</span>
               </div>
-              {user?.isEmailVerified ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-800 text-xxs font-bold border border-emerald-100">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-600" />
-                  Verified
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-amber-50 text-amber-800 text-xxs font-bold border border-amber-100">
-                  Pending
-                </span>
-              )}
+            </div>
+
+            {/* Mobile Number */}
+            <div className="flex items-center gap-3">
+              <Smartphone className="h-4.5 w-4.5 text-slate-400" />
+              <div>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Mobile Number</span>
+                <span className="text-slate-700 font-semibold">{user?.mobileNumber || 'N/A'}</span>
+              </div>
             </div>
 
             {/* Role */}
@@ -62,6 +95,40 @@ export const Profile = () => {
               <div>
                 <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Access Role</span>
                 <span className="text-slate-700 font-semibold uppercase">{user?.role || 'USER'}</span>
+              </div>
+            </div>
+
+            {/* Verification Status */}
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-4.5 w-4.5 text-slate-400" />
+              <div>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Verification Status</span>
+                {user?.isEmailVerified ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-emerald-50 text-emerald-800 text-xxs font-bold border border-emerald-100 mt-1">
+                    Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-amber-50 text-amber-800 text-xxs font-bold border border-amber-100 mt-1">
+                    Pending Verification
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Wallet Status */}
+            <div className="flex items-center gap-3">
+              <Wallet className="h-4.5 w-4.5 text-slate-400" />
+              <div>
+                <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Wallet Status</span>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xxs font-bold border mt-1 uppercase ${
+                  walletStatus === 'ACTIVE'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                    : walletStatus === 'FROZEN'
+                    ? 'bg-rose-50 text-rose-800 border-rose-100'
+                    : 'bg-slate-50 text-slate-800 border-slate-100'
+                }`}>
+                  {walletStatus}
+                </span>
               </div>
             </div>
 

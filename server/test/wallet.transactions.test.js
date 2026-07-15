@@ -35,7 +35,7 @@ before(async () => {
   sender = await User.create({
     firstName: 'Mary',
     lastName: 'Jackson',
-    username: 'mary',
+    mobileNumber: '9000000006',
     email: 'mary@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -44,7 +44,7 @@ before(async () => {
   receiver = await User.create({
     firstName: 'Dorothy',
     lastName: 'Vaughan',
-    username: 'dorothy',
+    mobileNumber: '9000000007',
     email: 'dorothy@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -53,7 +53,7 @@ before(async () => {
   outsider = await User.create({
     firstName: 'Annie',
     lastName: 'Easley',
-    username: 'annie',
+    mobileNumber: '9000000008',
     email: 'annie@example.com',
     password: passwordHash,
     isEmailVerified: true,
@@ -62,7 +62,7 @@ before(async () => {
   const noWalletUser = await User.create({
     firstName: 'Evelyn',
     lastName: 'Boyd',
-    username: 'evelyn',
+    mobileNumber: '9000000009',
     email: 'evelyn@example.com',
     password: passwordHash,
     isEmailVerified: true,

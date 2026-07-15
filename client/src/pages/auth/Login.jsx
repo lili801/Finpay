@@ -14,8 +14,8 @@ const loginSchema = z.object({
   identifier: z
     .string()
     .trim()
-    .min(1, 'Email or username is required')
-    .max(254, 'Email or username must not exceed 254 characters'),
+    .min(1, 'Email or mobile number is required')
+    .max(254, 'Email or mobile number must not exceed 254 characters'),
   password: z
     .string()
     .min(1, 'Password is required')
@@ -78,9 +78,9 @@ export const Login = () => {
           <div className="space-y-4">
             <div className="relative">
               <Input
-                label="Email or Username"
+                label="Email or Mobile Number"
                 type="text"
-                placeholder="Enter your email or username"
+                placeholder="Enter your email or mobile number"
                 error={errors.identifier?.message}
                 {...register('identifier')}
                 className="pl-10"
