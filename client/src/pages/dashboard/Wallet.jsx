@@ -166,10 +166,15 @@ export const Wallet = () => {
       await fetchWalletDetails();
     } catch (error) {
       console.error(error);
-      const message = error.response?.data?.error?.message || 'Transfer failed. Please check user details.';
+      const errData = error.response?.data?.error;
+      const isReceiverNotFound = errData?.code === 'RECEIVER_NOT_FOUND' || errData?.message === 'Receiver user not found';
+      const message = isReceiverNotFound
+        ? 'The mobile number you entered is not registered with FinPay. Please verify the mobile number or ask the receiver to create a FinPay account.'
+        : (errData?.message || 'Transfer failed. Please check user details.');
+      
       setTransferError(message);
       setTransferStep('error');
-      toast.error(message);
+      toast.error(isReceiverNotFound ? 'Receiver not found' : message);
     } finally {
       setIsSubmittingTransfer(false);
     }
@@ -449,17 +454,42 @@ export const Wallet = () => {
                 </div>
 
                 <div className="max-w-md mx-auto border border-slate-100 rounded-2xl p-6 bg-slate-50 space-y-3 text-sm">
+                  {transferResult.receiver?.firstName && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 font-medium">Receiver Name</span>
+                      <span className="font-bold text-slate-800">
+                        {transferResult.receiver.firstName} {transferResult.receiver.lastName}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-medium">Receiver Mobile Number</span>
+                    <span className="font-bold text-slate-800 font-mono">
+                      {transferResult.receiver?.mobileNumber || transferData?.receiverMobileNumber}
+                    </span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-medium">Transaction ID</span>
                     <span className="font-bold text-slate-800 font-mono">{transferResult.transactionId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-medium">Amount Debited</span>
-                    <span className="font-black text-slate-900">₹{(transferResult.amountTransferred / 100).toFixed(2)}</span>
+                    <span className="text-slate-500 font-medium">Amount Sent</span>
+                    <span className="font-black text-emerald-600">
+                      ₹{parseFloat(transferData?.amount || (transferResult.amountTransferred / 100)).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-medium">Remaining Balance</span>
                     <span className="font-bold text-slate-800">₹{(transferResult.sender.balance / 100).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-medium">Date & Time</span>
+                    <span className="font-semibold text-slate-700">
+                      {new Date(transferResult.createdAt || Date.now()).toLocaleString('en-IN', {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
+                    </span>
                   </div>
                 </div>
 
@@ -479,13 +509,23 @@ export const Wallet = () => {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-2xl font-bold text-slate-900">Transfer Failed</h3>
-                  <p className="text-sm text-slate-500">We were unable to complete this transaction.</p>
+                  {transferError.includes('not registered with FinPay') ? (
+                    <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed whitespace-pre-line">
+                      The mobile number you entered is not registered with FinPay.
+                      {"\n\n"}
+                      Please verify the mobile number or ask the receiver to create a FinPay account.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-slate-500">We were unable to complete this transaction.</p>
+                  )}
                 </div>
 
-                <div className="max-w-md mx-auto border border-red-100 rounded-2xl p-6 bg-red-50 text-red-800 text-sm">
-                  <span className="font-semibold block mb-1">Reason for failure:</span>
-                  {transferError}
-                </div>
+                {!transferError.includes('not registered with FinPay') && (
+                  <div className="max-w-md mx-auto border border-red-100 rounded-2xl p-6 bg-red-50 text-red-800 text-sm">
+                    <span className="font-semibold block mb-1">Reason for failure:</span>
+                    {transferError}
+                  </div>
+                )}
 
                 <div className="pt-6">
                   <Button variant="outline" className="px-8" onClick={handleResetTransferFlow}>

@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 
 import api from '../../services/api.js';
 import Button from '../../components/ui/Button.jsx';
+import Input from '../../components/ui/Input.jsx';
 
 export const Transactions = () => {
   const [transactions, setTransactions] = useState([]);

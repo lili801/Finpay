@@ -41,7 +41,7 @@ export function App() {
             path="/login"
             element={
               <PublicRoute>
-                <Login />
+                <Landing initialModal="login" />
               </PublicRoute>
             }
           />
@@ -49,7 +49,7 @@ export function App() {
             path="/register"
             element={
               <PublicRoute>
-                <Register />
+                <Landing initialModal="register" />
               </PublicRoute>
             }
           />

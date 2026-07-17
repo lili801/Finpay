@@ -1,9 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Wallet, ShieldCheck, Zap, BellRing, ArrowRight, Sparkles, Globe, UserCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Wallet, ShieldCheck, Zap, BellRing, ArrowRight, Sparkles, UserCheck } from 'lucide-react';
 import Button from '../components/ui/Button.jsx';
+import Modal from '../components/ui/Modal.jsx';
+import Login from './auth/Login.jsx';
+import Register from './auth/Register.jsx';
 
-export const Landing = () => {
+export const Landing = ({ initialModal }) => {
+  const [activeModal, setActiveModal] = useState(initialModal || null);
+  const navigate = useNavigate();
+
+  const handleClose = () => {
+    setActiveModal(null);
+    if (window.location.pathname !== '/') {
+      navigate('/', { replace: true });
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
       {/* Navigation Header */}
@@ -25,12 +38,8 @@ export const Landing = () => {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm">Sign In</Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm">Get Started</Button>
-            </Link>
+            <Button variant="ghost" size="sm" onClick={() => setActiveModal('login')}>Sign In</Button>
+            <Button size="sm" onClick={() => setActiveModal('register')}>Get Started</Button>
           </div>
         </div>
       </header>
@@ -50,17 +59,13 @@ export const Landing = () => {
             Experience lightning fast digital wallet transfers, top-ups, and real-time transaction tracking with enterprise-grade security and administrative audits.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2">
-                Open Free Account
-                <ArrowRight className="h-4.5 w-4.5" />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Explore Demo
-              </Button>
-            </Link>
+            <Button size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer" onClick={() => setActiveModal('register')}>
+              Open Free Account
+              <ArrowRight className="h-4.5 w-4.5" />
+            </Button>
+            <Button variant="outline" size="lg" className="w-full sm:w-auto cursor-pointer" onClick={() => setActiveModal('login')}>
+              Explore Demo
+            </Button>
           </div>
         </div>
 
@@ -138,11 +143,9 @@ export const Landing = () => {
               </p>
             </div>
             <div className="mt-8 sm:flex md:mt-0 md:ml-8 gap-4">
-              <Link to="/register">
-                <Button className="bg-white text-slate-950 hover:bg-slate-100 focus:ring-white">
-                  Create Free Account
-                </Button>
-              </Link>
+              <Button className="bg-white text-slate-950 hover:bg-slate-100 focus:ring-white cursor-pointer" onClick={() => setActiveModal('register')}>
+                Create Free Account
+              </Button>
             </div>
           </div>
         </div>
@@ -164,6 +167,22 @@ export const Landing = () => {
           </p>
         </div>
       </footer>
+
+      {/* Modals */}
+      <Modal isOpen={activeModal === 'login'} onClose={handleClose}>
+        <Login
+          isModal={true}
+          onSwitchToRegister={() => setActiveModal('register')}
+          onSuccess={handleClose}
+        />
+      </Modal>
+
+      <Modal isOpen={activeModal === 'register'} onClose={handleClose}>
+        <Register
+          isModal={true}
+          onSwitchToLogin={() => setActiveModal('login')}
+        />
+      </Modal>
     </div>
   );
 };

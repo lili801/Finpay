@@ -376,7 +376,11 @@ export class WalletService {
       receiver: {
         walletId: receiverWallet.id,
         userId: receiverUserId,
+        firstName: receiver.firstName,
+        lastName: receiver.lastName,
+        mobileNumber: receiver.mobileNumber,
       },
+      createdAt: new Date(),
     };
   }
 
