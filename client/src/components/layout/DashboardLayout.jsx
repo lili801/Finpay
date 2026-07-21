@@ -1,9 +1,23 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
 import Sidebar from './Sidebar.jsx';
 import Navbar from './Navbar.jsx';
 
 export const DashboardLayout = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
+
+  if (user?.role === 'ADMIN' && !isAdminRoute) {
+    return <Navigate to="/dashboard/admin" replace />;
+  }
+
+  if (user?.role !== 'ADMIN' && isAdminRoute) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
       {/* Sidebar Navigation */}

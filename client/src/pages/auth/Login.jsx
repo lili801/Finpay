@@ -47,9 +47,9 @@ export const Login = ({ onSwitchToRegister, onSuccess, isModal }) => {
         onSuccess(userData);
       }
       
-      const from = location.state?.from?.pathname || '/dashboard';
+      const target = userData?.role === 'ADMIN' ? '/dashboard/admin' : (location.state?.from?.pathname && !location.state?.from?.pathname.startsWith('/dashboard/admin') ? location.state.from.pathname : '/dashboard');
       setTimeout(() => {
-        navigate(from, { replace: true });
+        navigate(target, { replace: true });
       }, 600);
     } catch (error) {
       console.error(error);
