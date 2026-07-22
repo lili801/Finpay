@@ -166,18 +166,6 @@ Once the backend server is running, you can access the documentation at:
 
 The Swagger interface allows you to explore all available endpoints, view required request bodies, and test API calls directly from your browser.
 
-## Screenshots
-
-*(Placeholders for future screenshots)*
-
-- **Landing Page & Authentication**
-  ![Landing Page Placeholder]()
-- **User Dashboard**
-  ![Dashboard Placeholder]()
-- **Money Transfer Interface**
-  ![Transfer Placeholder]()
-- **Transaction History**
-  ![History Placeholder]()
 
 ## Future Enhancements
 
