@@ -123,39 +123,7 @@ Create a `.env` file in the root directory (`banking_system/.env`) based on the 
    ```
    *The frontend will typically run on `http://localhost:5173`.*
 
-## Environment Variables
 
-Create a `.env` file in the root of the project. Do **not** commit real secrets to version control.
-
-```env
-# Server Configuration
-SERVER_PORT=4000
-CLIENT_PORT=5173
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb://127.0.0.1:27017/finpay
-
-# Authentication Secrets
-JWT_ACCESS_SECRET=your_secure_access_secret_here
-JWT_REFRESH_SECRET=your_secure_refresh_secret_here
-
-# SMTP Email Configuration (Nodemailer)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_email@example.com
-SMTP_PASS=your_email_app_password
-SMTP_FROM="FinPay" <noreply@example.com>
-USE_MOCK_EMAIL=false
-
-# Admin Seeding
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=SecureAdminPassword123!
-ADMIN_FIRST_NAME=System
-ADMIN_LAST_NAME=Admin
-ADMIN_MOBILE=9999999999
-```
 
 ## API Documentation
 
