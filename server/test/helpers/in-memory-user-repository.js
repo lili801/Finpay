@@ -48,9 +48,9 @@ export class InMemoryUserRepository {
     );
   }
 
-  async findByVerificationTokenHash(tokenHash) {
+  async findByEmailForVerification(email) {
     return (
-      [...this.users.values()].find((user) => user.emailVerificationTokenHash === tokenHash) ?? null
+      [...this.users.values()].find((user) => user.email === email) ?? null
     );
   }
 

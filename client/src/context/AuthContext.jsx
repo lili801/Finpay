@@ -41,34 +41,24 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async ({ identifier, password }) => {
-    setLoading(true);
-    try {
-      const response = await api.post('/auth/login', { identifier, password });
-      const { accessToken, user: userData } = response.data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return userData;
-    } finally {
-      setLoading(false);
-    }
+    const response = await api.post('/auth/login', { identifier, password });
+    const { accessToken, user: userData } = response.data.data;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
   };
 
   const register = async ({ firstName, lastName, mobileNumber, email, password, confirmPassword }) => {
-    setLoading(true);
-    try {
-      const response = await api.post('/auth/register', {
-        firstName,
-        lastName,
-        mobileNumber,
-        email,
-        password,
-        confirmPassword,
-      });
-      return response.data;
-    } finally {
-      setLoading(false);
-    }
+    const response = await api.post('/auth/register', {
+      firstName,
+      lastName,
+      mobileNumber,
+      email,
+      password,
+      confirmPassword,
+    });
+    return response.data;
   };
 
   const logout = async () => {
@@ -84,8 +74,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyEmail = async (token) => {
-    const response = await api.post('/auth/verify-email', { token });
+  const verifyEmail = async ({ email, otp }) => {
+    const response = await api.post('/auth/verify-email', { email, otp });
+    return response.data;
+  };
+
+  const resendOtp = async (email) => {
+    const response = await api.post('/auth/resend-otp', { email });
     return response.data;
   };
 
@@ -106,6 +101,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     verifyEmail,
+    resendOtp,
     forgotPassword,
     resetPassword,
     isAuthenticated: !!user,

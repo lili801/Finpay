@@ -80,7 +80,16 @@ export const logoutSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  body: z.object({ token: z.string().trim().min(32).max(512) }).strict(),
+  body: z
+    .object({
+      email: emailSchema,
+      otp: z.string().trim().regex(/^[0-9]{6}$/, 'OTP must be a 6-digit number'),
+    })
+    .strict(),
+});
+
+export const resendOtpSchema = z.object({
+  body: z.object({ email: emailSchema }).strict(),
 });
 
 export const forgotPasswordSchema = z.object({

@@ -29,7 +29,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     isEmailVerified: { type: Boolean, default: false, required: true },
-    emailVerificationTokenHash: { type: String, select: false },
+    emailVerificationOtpHash: { type: String, select: false },
+    emailVerificationOtpExpiresAt: { type: Date, select: false },
+    emailVerificationOtpResends: { type: Number, default: 0, select: false },
+    emailVerificationOtpAttempts: { type: Number, default: 0, select: false },
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpiresAt: { type: Date, select: false },
     refreshTokenHash: { type: String, select: false },
@@ -43,7 +46,10 @@ const userSchema = new mongoose.Schema(
         returnedObject.id = returnedObject._id.toString();
         delete returnedObject._id;
         delete returnedObject.password;
-        delete returnedObject.emailVerificationTokenHash;
+        delete returnedObject.emailVerificationOtpHash;
+        delete returnedObject.emailVerificationOtpExpiresAt;
+        delete returnedObject.emailVerificationOtpResends;
+        delete returnedObject.emailVerificationOtpAttempts;
         delete returnedObject.passwordResetTokenHash;
         delete returnedObject.passwordResetExpiresAt;
         delete returnedObject.refreshTokenHash;
@@ -55,10 +61,6 @@ const userSchema = new mongoose.Schema(
 
 userSchema.index({ email: 1 }, { unique: true, name: 'unique_user_email' });
 userSchema.index({ mobileNumber: 1 }, { unique: true, name: 'unique_mobileNumber' });
-userSchema.index(
-  { emailVerificationTokenHash: 1 },
-  { sparse: true, name: 'email_verification_token' },
-);
 userSchema.index(
   { passwordResetTokenHash: 1, passwordResetExpiresAt: 1 },
   { sparse: true, name: 'password_reset_token' },

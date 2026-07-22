@@ -22,12 +22,13 @@ const loginSchema = z.object({
     .max(128, 'Password must not exceed 128 characters'),
 });
 
-export const Login = ({ onSwitchToRegister, onSuccess, isModal }) => {
+export const Login = ({ onSwitchToRegister, onSuccess, isModal, successBannerMessage, onOpenOtpModal }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
 
   const {
     register,
@@ -39,6 +40,7 @@ export const Login = ({ onSwitchToRegister, onSuccess, isModal }) => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
+    setUnverifiedEmail('');
     try {
       const userData = await login(data);
       toast.success(`Welcome back, ${userData.firstName}!`);
@@ -53,8 +55,14 @@ export const Login = ({ onSwitchToRegister, onSuccess, isModal }) => {
       }, 600);
     } catch (error) {
       console.error(error);
+      const errCode = error.response?.data?.error?.code;
       const message = error.response?.data?.error?.message || 'Invalid email or password';
-      toast.error(message);
+      if (errCode === 'EMAIL_NOT_VERIFIED' || message.includes('not verified')) {
+        setUnverifiedEmail(data.identifier);
+        toast.error('Your email is not verified.');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +97,25 @@ export const Login = ({ onSwitchToRegister, onSuccess, isModal }) => {
           )}
         </p>
       </div>
+
+      {successBannerMessage && (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs font-semibold text-emerald-800 text-center">
+          {successBannerMessage}
+        </div>
+      )}
+
+      {unverifiedEmail && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 text-center space-y-1.5">
+          <p className="font-semibold">Your email is not verified.</p>
+          <button
+            type="button"
+            onClick={() => onOpenOtpModal && onOpenOtpModal(unverifiedEmail)}
+            className="text-brand-purple hover:underline font-bold cursor-pointer bg-transparent border-0 p-0"
+          >
+            Verify Email / Resend OTP
+          </button>
+        </div>
+      )}
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4">

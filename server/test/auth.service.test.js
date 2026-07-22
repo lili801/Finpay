@@ -34,15 +34,33 @@ describe('AuthService', () => {
   it('registers a user with hashed secrets and a safe response', async () => {
     const result = await service.register(registration);
     const storedUser = await repository.findByIdentifier(registration.email);
-    const verificationUrl = new URL(emailService.verificationMessages[0].verificationUrl);
-    const rawToken = verificationUrl.searchParams.get('token');
+    const sentOtp = emailService.verificationMessages[0].otp;
 
     assert.equal(storedUser.password, `password-hash:${registration.password}`);
-    assert.equal(storedUser.emailVerificationTokenHash, `token-hash:${rawToken}`);
-    assert.notEqual(storedUser.emailVerificationTokenHash, rawToken);
+    assert.equal(storedUser.emailVerificationOtpHash, `token-hash:${sentOtp}`);
+    assert.notEqual(storedUser.emailVerificationOtpHash, sentOtp);
     assert.equal(result.password, undefined);
-    assert.equal(result.emailVerificationTokenHash, undefined);
+    assert.equal(result.emailVerificationOtpHash, undefined);
     assert.equal(result.email, registration.email);
+  });
+
+  it('verifies email with valid OTP and clears OTP fields', async () => {
+    await service.register(registration);
+    const sentOtp = emailService.verificationMessages[0].otp;
+
+    await service.verifyEmail({ email: registration.email, otp: sentOtp });
+    const storedUser = await repository.findByIdentifier(registration.email);
+
+    assert.equal(storedUser.isEmailVerified, true);
+    assert.equal(storedUser.emailVerificationOtpHash, undefined);
+  });
+
+  it('rejects verification with invalid OTP', async () => {
+    await service.register(registration);
+    await assert.rejects(
+      () => service.verifyEmail({ email: registration.email, otp: '000000' }),
+      (error) => error.code === 'INVALID_OTP' && error.statusCode === 400,
+    );
   });
 
   it('logs in a verified user and stores only the refresh-token hash', async () => {

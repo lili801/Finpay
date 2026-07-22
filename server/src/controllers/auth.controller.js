@@ -56,8 +56,17 @@ export class AuthController {
   };
 
   verifyEmail = async (request, response) => {
-    await this.authService.verifyEmail(request.validated.body.token);
+    await this.authService.verifyEmail(request.validated.body);
     response.status(200).json(successResponse({ message: 'Email verified successfully' }));
+  };
+
+  resendOtp = async (request, response) => {
+    await this.authService.resendOtp(request.validated.body);
+    response
+      .status(200)
+      .json(
+        successResponse({ message: 'A new verification code has been sent to your email.' }),
+      );
   };
 
   forgotPassword = async (request, response) => {

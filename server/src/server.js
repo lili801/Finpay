@@ -1,3 +1,4 @@
+console.log('[TRACE] Loading server.js');
 import { createServer } from 'node:http';
 
 import { app } from './app.js';

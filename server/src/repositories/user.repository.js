@@ -1,7 +1,7 @@
 import { User } from '../models/user.model.js';
 
 const SENSITIVE_FIELDS =
-  '+password +emailVerificationTokenHash +passwordResetTokenHash +passwordResetExpiresAt +refreshTokenHash';
+  '+password +emailVerificationOtpHash +emailVerificationOtpExpiresAt +emailVerificationOtpResends +emailVerificationOtpAttempts +passwordResetTokenHash +passwordResetExpiresAt +refreshTokenHash';
 
 export class UserRepository {
   async create(userData) {
@@ -33,9 +33,9 @@ export class UserRepository {
       .lean();
   }
 
-  async findByVerificationTokenHash(tokenHash) {
-    return User.findOne({ emailVerificationTokenHash: tokenHash }).select(
-      '+emailVerificationTokenHash',
+  async findByEmailForVerification(email) {
+    return User.findOne({ email }).select(
+      '+emailVerificationOtpHash +emailVerificationOtpExpiresAt +emailVerificationOtpResends +emailVerificationOtpAttempts',
     );
   }
 

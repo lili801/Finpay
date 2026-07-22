@@ -24,14 +24,18 @@ import Button from '../components/ui/Button.jsx';
 import Modal from '../components/ui/Modal.jsx';
 import Login from './auth/Login.jsx';
 import Register from './auth/Register.jsx';
+import OtpModal from '../components/auth/OtpModal.jsx';
 
 export const Landing = ({ initialModal }) => {
   const [activeModal, setActiveModal] = useState(initialModal || null);
+  const [otpEmail, setOtpEmail] = useState('');
+  const [loginSuccessMessage, setLoginSuccessMessage] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
   const navigate = useNavigate();
 
   const handleClose = () => {
     setActiveModal(null);
+    setLoginSuccessMessage('');
     if (window.location.pathname !== '/') {
       navigate('/', { replace: true });
     }
@@ -776,7 +780,15 @@ export const Landing = ({ initialModal }) => {
       <Modal isOpen={activeModal === 'login'} onClose={handleClose}>
         <Login
           isModal={true}
-          onSwitchToRegister={() => setActiveModal('register')}
+          successBannerMessage={loginSuccessMessage}
+          onSwitchToRegister={() => {
+            setLoginSuccessMessage('');
+            setActiveModal('register');
+          }}
+          onOpenOtpModal={(email) => {
+            setOtpEmail(email);
+            setActiveModal('otp');
+          }}
           onSuccess={handleClose}
         />
       </Modal>
@@ -784,7 +796,25 @@ export const Landing = ({ initialModal }) => {
       <Modal isOpen={activeModal === 'register'} onClose={handleClose}>
         <Register
           isModal={true}
-          onSwitchToLogin={() => setActiveModal('login')}
+          onRegistered={(email) => {
+            setOtpEmail(email);
+            setActiveModal('otp');
+          }}
+          onSwitchToLogin={() => {
+            setLoginSuccessMessage('');
+            setActiveModal('login');
+          }}
+        />
+      </Modal>
+
+      <Modal isOpen={activeModal === 'otp'} onClose={handleClose}>
+        <OtpModal
+          email={otpEmail}
+          onSuccess={() => {
+            setLoginSuccessMessage('Email verified successfully. Please sign in to continue.');
+            setActiveModal('login');
+          }}
+          onClose={handleClose}
         />
       </Modal>
     </div>

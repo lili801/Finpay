@@ -29,8 +29,10 @@ export class AuthService {
       });
     }
 
-    const verificationToken = this.tokenService.createEmailVerificationToken(email);
+    const otp = this.#generateOtp();
     const passwordHash = await this.passwordHasher.hash(password);
+    const otpHash = this.tokenService.hashToken(otp);
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     let user;
     try {
@@ -40,7 +42,10 @@ export class AuthService {
         mobileNumber,
         email,
         password: passwordHash,
-        emailVerificationTokenHash: this.tokenService.hashToken(verificationToken),
+        emailVerificationOtpHash: otpHash,
+        emailVerificationOtpExpiresAt: otpExpiresAt,
+        emailVerificationOtpResends: 0,
+        emailVerificationOtpAttempts: 0,
       });
     } catch (error) {
       if (error?.code === 11000) {
@@ -53,7 +58,7 @@ export class AuthService {
     }
 
     console.log('Before calling #deliverVerificationEmail');
-    await this.#deliverVerificationEmail(user, verificationToken);
+    await this.#deliverVerificationEmail(user, otp);
     if (this.walletService) {
       await this.walletService.getOrCreateWalletForUser(user.id);
     }
@@ -86,7 +91,7 @@ export class AuthService {
         reason: 'email_not_verified',
         userId: user.id,
       });
-      throw new AppError('Verify your email address before signing in', {
+      throw new AppError('Your email is not verified.', {
         statusCode: 403,
         code: 'EMAIL_NOT_VERIFIED',
       });
@@ -151,37 +156,111 @@ export class AuthService {
     return this.#publicUser(user);
   }
 
-  async verifyEmail(token) {
-    try {
-      const payload = this.tokenService.verifyEmailVerificationToken(token);
-      if (payload.type !== 'email_verification') {
-        throw new Error('Unexpected token type');
-      }
-    } catch {
-      throw new AppError('Verification token is invalid or expired', {
-        statusCode: 400,
-        code: 'INVALID_VERIFICATION_TOKEN',
+  async verifyEmail({ email, otp }) {
+    const user = await this.userRepository.findByEmailForVerification(email);
+
+    if (!user) {
+      throw new AppError('No account found with this email address', {
+        statusCode: 404,
+        code: 'USER_NOT_FOUND',
       });
     }
 
-    const tokenHash = this.tokenService.hashToken(token);
-    const user = await this.userRepository.findByVerificationTokenHash(tokenHash);
-
-    if (!user) {
-      throw new AppError('Verification token is invalid or has already been used', {
+    if (user.isEmailVerified) {
+      throw new AppError('Your email is already verified', {
         statusCode: 400,
-        code: 'INVALID_VERIFICATION_TOKEN',
+        code: 'EMAIL_ALREADY_VERIFIED',
+      });
+    }
+
+    if (!user.emailVerificationOtpHash || !user.emailVerificationOtpExpiresAt) {
+      throw new AppError('No pending verification found for this user', {
+        statusCode: 400,
+        code: 'INVALID_OTP',
+      });
+    }
+
+    if (user.emailVerificationOtpExpiresAt < new Date()) {
+      throw new AppError('Verification code has expired. Please request a new OTP.', {
+        statusCode: 400,
+        code: 'OTP_EXPIRED',
+      });
+    }
+
+    if ((user.emailVerificationOtpAttempts ?? 0) >= 5) {
+      throw new AppError('Too many failed attempts. Please request a new OTP.', {
+        statusCode: 429,
+        code: 'TOO_MANY_ATTEMPTS',
+      });
+    }
+
+    const otpHash = this.tokenService.hashToken(otp);
+    if (otpHash !== user.emailVerificationOtpHash) {
+      user.emailVerificationOtpAttempts = (user.emailVerificationOtpAttempts ?? 0) + 1;
+      await this.userRepository.save(user);
+      throw new AppError('Invalid verification code.', {
+        statusCode: 400,
+        code: 'INVALID_OTP',
       });
     }
 
     user.isEmailVerified = true;
-    user.emailVerificationTokenHash = undefined;
+    user.emailVerificationOtpHash = undefined;
+    user.emailVerificationOtpExpiresAt = undefined;
+    user.emailVerificationOtpResends = undefined;
+    user.emailVerificationOtpAttempts = undefined;
     await this.userRepository.save(user);
 
     logger.info('Email verified', {
       event: 'auth.email_verification.succeeded',
       userId: user.id,
     });
+  }
+
+  async resendOtp({ email }) {
+    const user = await this.userRepository.findByEmailForVerification(email);
+
+    if (!user) {
+      throw new AppError('No account found with this email address', {
+        statusCode: 404,
+        code: 'USER_NOT_FOUND',
+      });
+    }
+
+    if (user.isEmailVerified) {
+      throw new AppError('Your email is already verified', {
+        statusCode: 400,
+        code: 'EMAIL_ALREADY_VERIFIED',
+      });
+    }
+
+    if ((user.emailVerificationOtpResends ?? 0) >= 3) {
+      throw new AppError('Maximum resend limit reached. Please try again later.', {
+        statusCode: 429,
+        code: 'TOO_MANY_RESENDS',
+      });
+    }
+
+    const otp = this.#generateOtp();
+    const otpHash = this.tokenService.hashToken(otp);
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.emailVerificationOtpHash = otpHash;
+    user.emailVerificationOtpExpiresAt = otpExpiresAt;
+    user.emailVerificationOtpResends = (user.emailVerificationOtpResends ?? 0) + 1;
+    user.emailVerificationOtpAttempts = 0;
+    await this.userRepository.save(user);
+
+    await this.#deliverVerificationEmail(user, otp);
+
+    logger.info('OTP resent', {
+      event: 'auth.email_verification.resent',
+      userId: user.id,
+    });
+  }
+
+  #generateOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
   async forgotPassword(email) {
@@ -253,11 +332,10 @@ export class AuthService {
     });
   }
 
-  async #deliverVerificationEmail(user, token) {
+  async #deliverVerificationEmail(user, otp) {
     console.log('Inside #deliverVerificationEmail');
-    const verificationUrl = `${env.PUBLIC_APP_URL}/verify-email?token=${encodeURIComponent(token)}`;
     try {
-      await this.emailService.sendEmailVerification({ email: user.email, verificationUrl });
+      await this.emailService.sendEmailVerification({ email: user.email, otp });
     } catch (error) {
       logger.error('Verification email delivery failed', {
         event: 'auth.email_verification.delivery_failed',

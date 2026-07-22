@@ -44,7 +44,7 @@ const registerSchema = z
     path: ['confirmPassword'],
   });
 
-export const Register = ({ onSwitchToLogin, isModal }) => {
+export const Register = ({ onRegistered, onSwitchToLogin, isModal }) => {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -63,8 +63,9 @@ export const Register = ({ onSwitchToLogin, isModal }) => {
     setIsLoading(true);
     try {
       await registerUser(data);
-      toast.success('Registration successful! Please check your email to verify your account.');
-      if (onSwitchToLogin) {
+      if (onRegistered) {
+        onRegistered(data.email);
+      } else if (onSwitchToLogin) {
         onSwitchToLogin();
       } else {
         navigate('/login');

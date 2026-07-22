@@ -11,6 +11,7 @@ import {
   logoutSchema,
   refreshSchema,
   registerSchema,
+  resendOtpSchema,
   resetPasswordSchema,
   verifyEmailSchema,
 } from '../validators/auth.validator.js';
@@ -25,6 +26,7 @@ export function createAuthRouter() {
   router.post('/logout', authenticate, validate(logoutSchema), asyncHandler(controller.logout));
   router.get('/me', authenticate, asyncHandler(controller.me));
   router.post('/verify-email', validate(verifyEmailSchema), asyncHandler(controller.verifyEmail));
+  router.post('/resend-otp', validate(resendOtpSchema), asyncHandler(controller.resendOtp));
   router.post(
     '/forgot-password',
     validate(forgotPasswordSchema),
