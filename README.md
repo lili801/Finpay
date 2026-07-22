@@ -1,119 +1,187 @@
 # FinPay
 
-FinPay is a production-oriented payment platform built as a Node.js monorepo.
+FinPay is a modern, secure, and intuitive web-based banking application designed to simplify personal finance management and digital transactions. It provides users with a seamless platform to create wallets, transfer funds instantly, and track their transaction history in real-time. 
 
-## Current scope
+Built with security as a primary focus, FinPay features robust authentication mechanisms including JWT-based sessions, refresh tokens, and robust email OTP verification. The application maintains strict data integrity and validates all user inputs, ensuring a safe and reliable financial environment for all transactions.
 
-Increment 3 provides production-oriented registration, email verification, login, JWT access and
-rotating refresh tokens, logout, authenticated profiles, forgot-password, and password-reset
-workflows. MongoDB persistence, bcrypt hashing, Zod validation, structured security events, and
-OpenAPI documentation are included. It also defines the financial domain contracts, schemas, and
-money value utilities that future wallet and payment features will use.
+Whether managing daily expenses or handling secure peer-to-peer transfers, FinPay offers a clean and responsive user interface coupled with a highly scalable backend architecture to meet the demands of modern digital banking.
 
-Wallet and payment APIs, repositories, queue processing, Redis, and balance mutation logic remain
-intentionally deferred.
+## Features
 
-## Requirements
+- **User Authentication:** Secure login and registration.
+- **JWT Authentication:** Access and refresh token management.
+- **Email OTP Verification:** Secure 6-digit email verification flow.
+- **Forgot Password:** Secure password recovery mechanism.
+- **Reset Password:** Authenticated password resetting.
+- **Wallet Management:** Automatic wallet creation and balance tracking.
+- **Money Transfer:** Instant peer-to-peer internal fund transfers.
+- **Transaction History:** Detailed ledger of all account activities.
+- **Notifications:** Real-time system and transaction alerts.
+- **Admin Dashboard:** Centralized management for administrative users.
+- **User Dashboard:** Comprehensive overview of personal finances.
+- **Swagger API Documentation:** Interactive API exploration and testing.
+- **Logging:** Comprehensive backend event and error logging.
+- **Input Validation:** Strict Zod-based request validation.
 
-- Node.js 22 or newer
-- npm 10 or newer
-- Docker with Docker Compose (optional for this increment)
-- MongoDB 8
+## Tech Stack
 
-## Local development
+**Frontend:**
+- React (Vite)
+- Tailwind CSS
+- React Router DOM
+- Axios
+- React Hook Form & Zod
+- Lucide React (Icons)
 
-```bash
-npm install
-cp server/.env.example server/.env
-npm run start --workspace server
+**Backend:**
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+- Nodemailer (SMTP Email Delivery)
+- JSON Web Tokens (JWT)
+- Bcrypt (Password Hashing)
+- Zod (Schema Validation)
+- Winston (Logging)
+- Swagger (API Documentation)
+
+## Project Architecture
+
+FinPay follows a decoupled client-server architecture:
+1. **Client (React):** The frontend serves as a dynamic Single Page Application (SPA) that manages the user interface, client-side routing, and local state. It communicates with the backend exclusively through secure RESTful HTTP requests using Axios.
+2. **Server (Express):** The backend acts as the core processing engine. It exposes a versioned REST API, handles authentication, validates business logic, and manages transaction atomicity. It utilizes a dependency injection container to manage services (Auth, Wallet, Notification) cleanly.
+3. **Database (MongoDB):** The server connects to MongoDB to persist user profiles, wallets, transactions, and notifications. Mongoose ODM is used to define strict data models and relationships.
+
+## Folder Structure
+
+```text
+banking_system/
+├── client/                 # Frontend React Application
+│   ├── public/
+│   └── src/
+│       ├── components/     # Reusable UI components
+│       ├── context/        # Global React context (e.g., AuthContext)
+│       ├── pages/          # Full page views (Landing, Dashboard, etc.)
+│       └── services/       # API integration and Axios interceptors
+│
+├── server/                 # Backend Express Application
+│   ├── scripts/            # Database seeding and utility scripts
+│   ├── src/
+│   │   ├── config/         # Environment, DI container, and DB config
+│   │   ├── controllers/    # Request handlers and response formatting
+│   │   ├── middleware/     # Auth, error handling, and rate limiting
+│   │   ├── models/         # Mongoose database schemas
+│   │   ├── repositories/   # Database access layer
+│   │   ├── routes/         # Express API route definitions
+│   │   ├── services/       # Core business logic and email delivery
+│   │   └── utils/          # Hashing, tokens, and helper functions
+│   └── test/               # Backend test suite
+│
+└── .env                    # Root environment configuration
 ```
 
-Generate independent JWT secrets with a password manager or cryptographically secure random
-generator before running in production. Development defaults are accepted locally but explicitly
-rejected when `NODE_ENV=production`.
+## Getting Started
 
-To run MongoDB with Docker while developing the API locally:
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- MongoDB (Running locally or via Atlas)
 
-```bash
-docker compose up -d mongo
-npm run dev
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd banking_system
+   ```
+
+2. **Install Backend Dependencies:**
+   ```bash
+   cd server
+   npm install
+   ```
+
+3. **Install Frontend Dependencies:**
+   ```bash
+   cd ../client
+   npm install
+   ```
+
+### Configuration
+
+Create a `.env` file in the root directory (`banking_system/.env`) based on the required environment variables (see below).
+
+### Running the Application
+
+1. **Start the Backend Server (from the `server` directory):**
+   ```bash
+   npm run dev
+   ```
+   *The backend will typically run on `http://localhost:4000`.*
+
+2. **Start the Frontend Development Server (from the `client` directory):**
+   ```bash
+   npm run dev
+   ```
+   *The frontend will typically run on `http://localhost:5173`.*
+
+## Environment Variables
+
+Create a `.env` file in the root of the project. Do **not** commit real secrets to version control.
+
+```env
+# Server Configuration
+SERVER_PORT=4000
+CLIENT_PORT=5173
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://127.0.0.1:27017/finpay
+
+# Authentication Secrets
+JWT_ACCESS_SECRET=your_secure_access_secret_here
+JWT_REFRESH_SECRET=your_secure_refresh_secret_here
+
+# SMTP Email Configuration (Nodemailer)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_email@example.com
+SMTP_PASS=your_email_app_password
+SMTP_FROM="FinPay" <noreply@example.com>
+USE_MOCK_EMAIL=false
+
+# Admin Seeding
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=SecureAdminPassword123!
+ADMIN_FIRST_NAME=System
+ADMIN_LAST_NAME=Admin
+ADMIN_MOBILE=9999999999
 ```
 
-The API listens on `http://localhost:4000` by default.
+## API Documentation
 
-## Authentication API
+FinPay includes comprehensive, interactive API documentation powered by Swagger UI.
 
-| Method | Path                           | Authentication | Purpose                         |
-| ------ | ------------------------------ | -------------- | ------------------------------- |
-| POST   | `/api/v1/auth/register`        | Public         | Create an unverified account    |
-| POST   | `/api/v1/auth/verify-email`    | Public         | Consume an email token          |
-| POST   | `/api/v1/auth/login`           | Public         | Login by email or username      |
-| POST   | `/api/v1/auth/refresh`         | Refresh token  | Rotate access and refresh token |
-| POST   | `/api/v1/auth/logout`          | Bearer token   | Invalidate the active session   |
-| GET    | `/api/v1/auth/me`              | Bearer token   | Return the current profile      |
-| POST   | `/api/v1/auth/forgot-password` | Public         | Request reset instructions      |
-| POST   | `/api/v1/auth/reset-password`  | Public         | Consume a password-reset token  |
+Once the backend server is running, you can access the documentation at:
+**`http://localhost:4000/docs`**
 
-Swagger UI is available at `http://localhost:4000/docs`. The OpenAPI document is available at
-`http://localhost:4000/docs/openapi.json`.
+The Swagger interface allows you to explore all available endpoints, view required request bodies, and test API calls directly from your browser.
 
-Login and refresh responses return the refresh token in the response data for non-browser clients
-and also set it as an HTTP-only cookie. Browser applications should use the cookie and keep access
-tokens in memory.
+## Screenshots
 
-Email delivery is currently represented by a mock adapter. It logs delivery metadata without
-logging raw verification or reset tokens. Replace this adapter with a transactional email
-provider before deployment.
+*(Placeholders for future screenshots)*
 
-## Quality checks
+- **Landing Page & Authentication**
+  ![Landing Page Placeholder]()
+- **User Dashboard**
+  ![Dashboard Placeholder]()
+- **Money Transfer Interface**
+  ![Transfer Placeholder]()
+- **Transaction History**
+  ![History Placeholder]()
 
-```bash
-npm run lint
-npm run format:check
-npm test
-```
+## Future Enhancements
 
-## Architectural boundaries
-
-- Controllers translate HTTP requests and responses.
-- Services orchestrate use cases and contain business rules.
-- Repositories isolate persistence.
-- Validators define input and environment contracts.
-- Middleware handles cross-cutting HTTP concerns.
-- Queue modules own broker integration; jobs own background processing.
-- Configuration modules own infrastructure construction.
-
-Business logic must not be placed in controllers, routes, or middleware.
-
-## Financial domain
-
-All INR values are represented as integer paise. MongoDB monetary fields reject fractional,
-negative, unsafe, and over-limit values. The supported ceiling is
-`9,000,000,000,000` paise, deliberately below JavaScript's maximum safe integer.
-
-`rupeesToPaise()` accepts decimal strings such as `"125.50"` or whole-number JavaScript integers.
-Fractional JavaScript numbers are rejected because values such as `0.1` are binary floating-point
-approximations. `paiseToRupees()` returns a fixed two-decimal string rather than a floating-point
-number.
-
-The domain currently defines:
-
-- One versioned wallet per user with `ACTIVE`, `FROZEN`, or `CLOSED` lifecycle state.
-- Transaction identity, participant, amount, type, status, and idempotency invariants.
-- Append-only ledger records linking one debit wallet to one credit wallet.
-- User-scoped idempotency keys with SHA-256 request fingerprints and TTL expiration.
-- Durable notification delivery/read states.
-
-These models are not mounted behind API routes in Increment 3.
-
-## Authentication security
-
-- Passwords are hashed with configurable bcrypt work factor 12 by default.
-- Passwords must be 12-128 characters and include upper/lowercase letters, a number, and a symbol.
-- Credential, verification, reset, and refresh hashes are excluded from normal Mongoose queries.
-- Expiring, purpose-bound email-verification tokens and opaque reset tokens are stored only as
-  SHA-256 hashes.
-- Access and refresh JWTs use separate secrets and purpose claims.
-- Refresh tokens are rotated with a compare-and-swap database update to reject replay.
-- Password reset invalidates every active refresh session.
-- Forgot-password responses do not reveal whether an email exists.
+- **Docker:** Containerization of both frontend and backend for simplified deployment and environment consistency.
+- **Redis:** Implementation of Redis caching for improved performance and robust rate-limiting.
+- **RabbitMQ:** Asynchronous message queuing for non-blocking notification and email delivery.
+- **Deployment:** Production deployment configuration using modern cloud infrastructure.
